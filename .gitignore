@@ -1,0 +1,44 @@
+.*
+
+# Latex
+*.aux
+*.out
+*.toc
+*.log
+*.bbl
+*.blg
+*Notes.bib
+*.fls
+*.fdb_latexmk
+*.nav
+*.snm
+
+# Documents
+*.pdf
+*.dvi
+*.ps
+
+# Python
+*.pyc
+
+# Images
+*.bmp
+*.tiff
+*.png
+*.jpg
+
+# Archives
+*.gz
+*.zip
+*.tar
+
+# Backup files
+*.backup
+*~
+
+# Sphinx build files
+test/docs/_build/*
+
+# OS X Noise
+.DS_Store
+.Trash
