@@ -1,6 +1,10 @@
 import re
+import os
+import tempfile
+import subprocess
 import sphinx
 import docutils
+import juliadomain
 
 
 def matchingbracket(buf, i0):
@@ -17,25 +21,32 @@ def matchingbracket(buf, i0):
 
 
 def getfunction(sourcepath, functionname):
-    f = open(sourcepath)
+    f = tempfile.NamedTemporaryFile(mode='r', delete=True)
+    directory = os.path.dirname(os.path.realpath(__file__))
+    scriptpath = os.path.join(directory, "parsefile.jl")
+    subprocess.call(["julia", scriptpath, sourcepath, f.name])
     buf = f.read()
     f.close()
+    d = eval(buf)
+    for func in d:
+        if func["name"] == functionname:
+            return func
+    raise ValueError()
+    # functionregex = "function {}".format(functionname) + "[\{\(]"
+    # r = re.search(functionregex, buf)
+    # if r is None:
+    #     raise ValueError()
+    # i0 = r.start()
 
-    functionregex = "function {}".format(functionname) + "[\{\(]"
-    r = re.search(functionregex, buf)
-    if r is None:
-        raise ValueError()
-    i0 = r.start()
+    # # Extract docstring
+    # if buf[i0-4:i0] == '"""\n':
+    #     i1 = buf.rindex('"""', 0, i0-4)
+    #     docstring = buf[i1+4:i0-5]
 
-    # Extract docstring
-    if buf[i0-4:i0] == '"""\n':
-        i1 = buf.rindex('"""', 0, i0-4)
-        docstring = buf[i1+4:i0-5]
-
-    # Extract function definition
-    i1 = matchingbracket(buf, buf.index("(", i0))
-    functionstring = buf[i0:i1+1]
-    return docstring, functionstring
+    # # Extract function definition
+    # i1 = matchingbracket(buf, buf.index("(", i0))
+    # functionstring = buf[i0:i1+1]
+    # return docstring, functionstring
 
 
 # class Function(docutils.nodes.General, docutils.nodes.Element):
@@ -121,13 +132,47 @@ def parse_docstring(docstring):
 
 
 class FunctionDirective(docutils.parsers.rst.Directive):
-    has_content = True
+    has_content = False
     required_arguments = 2
 
     def run(self):
         sourcename = self.arguments[0]
         functionname = self.arguments[1]
-        docstring, funcstring = getfunction(sourcename, functionname)
+        funcdict = getfunction(sourcename, functionname)
+        self.domain, self.objtype = 'jl', 'Function'
+
+        node = sphinx.addnodes.desc()
+        node.document = self.state.document
+        node['domain'] = self.domain
+        # 'desctype' is a backwards compatible attribute
+        node['objtype'] = node['desctype'] = self.objtype
+        node['noindex'] = noindex = ('noindex' in self.options)
+        fullname = funcdict["name"]
+        if funcdict["templateparameters"]:
+            fullname += "{" + ",".join(funcdict["templateparameters"]) + "}"
+
+        signaturenode = sphinx.addnodes.desc_signature("test", "")
+        node += signaturenode
+        contentnode = sphinx.addnodes.desc_content()
+        node += contentnode
+
+        # d = docutils.nodes.paragraph(funcdict["docstring"], funcdict["docstring"])
+        d = docutils.statemachine.ViewList(funcdict["docstring"].split("\n"))
+        self.state.nested_parse(d, self.content_offset, contentnode)
+        # raise(Exception(d))
+        signaturenode += sphinx.addnodes.desc_name(fullname, fullname)
+        paramlist = sphinx.addnodes.desc_parameterlist()
+        signaturenode += paramlist
+        for arg in funcdict["arguments"]:
+            x = arg["name"]
+            paramlist += sphinx.addnodes.desc_parameter(x, x)
+        for arg in funcdict["kwarguments"]:
+            x = arg["name"]
+            paramlist += juliadomain.desc_keyparameter(x, x)
+
+        return [node]
+        raise(Exception(funcdict))
+        # docstring, funcstring = getfunction(sourcename, functionname)
 
         # Parse function
         funcstring = funcstring.replace("function ", "").strip()
@@ -172,11 +217,7 @@ class FunctionDirective(docutils.parsers.rst.Directive):
                     argtype = arg.get("type", "")
                     break
             kwparams.append("    :param {} {}: {}".format(argtype, name, desc))
-        # params = ["    :param {}: {}".format(name, desc) for name, desc in arguments["Arguments"]]
-        # kwparams = ["    :arg {}: {}".format(name, desc) for name, desc in arguments["Optional Arguments"]]
-        # raise(Exception(arguments["Optional Arguments"]))
         data = "\n\n".join([func, header, "\n".join(params+kwparams)])
-        # raise(Exception(data))
         content = docutils.statemachine.ViewList(data.splitlines(), sourcename)
         node = docutils.nodes.paragraph()
         self.state.nested_parse(content, 0, node)
