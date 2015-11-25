@@ -10,6 +10,7 @@
 """
 
 import re
+import juliaparser
 
 import docutils
 from docutils import nodes
@@ -232,21 +233,24 @@ class JuliaFunction(JuliaObject):
         * it is stripped from the displayed name if present
         * it is added to the full name (return value) if not present
         """
+        env = self.state.document.settings.env
         if sig == "<auto>":
-            function = self.funcdict
+            function = self.function
+            content = docutils.statemachine.ViewList(function["docstring"].split("\n"))
+            self.content = content
         else:
-            m = julia_signature_regex.match(sig)
-            if m is None:
-                raise ValueError
-            d = m.groupdict()
-            qualifiers = d.get("qualifiers", "")
-            name = d["name"]
-            templateparameters = d.get("templateparameters", "")
-            arguments = d.get("arguments", "")
-        content = docutils.statemachine.ViewList(function["docstring"].split("\n"))
-        self.content = content
-        #raise(Exception(self.content.items))
-
+            functionstring = "function " + sig + "end"
+            # raise(Exception(functionstring))
+            function = env.juliaparser.parsefunction(functionstring)
+            # function =
+            # m = julia_signature_regex.match(sig)
+            # if m is None:
+            #     raise ValueError
+            # d = m.groupdict()
+            # qualifiers = d.get("qualifiers", "")
+            # name = d["name"]
+            # templateparameters = d.get("templateparameters", "")
+            # arguments = d.get("arguments", "")
         fullname = function["name"]
         if function["templateparameters"]:
             fullname += "{" + ",".join(function["templateparameters"]) + "}"
@@ -623,10 +627,9 @@ def depart_desc_keyparameter(self, node):
     if not node.hasattr('noemph'):
         self.body.append('</em>')
 
-import types
-
 
 def update_builder(app):
+    app.env.juliaparser = juliaparser.JuliaParser()
     translator = app.builder.translator_class
     # raise Exception(translator)
     translator.first_kwordparam = True
