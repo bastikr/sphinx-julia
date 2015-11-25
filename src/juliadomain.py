@@ -11,6 +11,7 @@
 
 import re
 
+import docutils
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -83,6 +84,10 @@ class JuliaObject(ObjectDescription):
         TypedField('parameter', label=l_('Parameters'),
                    names=('param', 'parameter', 'arg', 'argument'),
                    typerolename='obj', typenames=('paramtype', 'type'),
+                   can_collapse=True),
+        TypedField('kwparam', label=l_('Keyword Parameters'),
+                   names=('kwparam', 'kwparameter', 'kwarg', 'kwargument'),
+                   typerolename='obj', typenames=('kwparamtype', 'kwtype'),
                    can_collapse=True),
         TypedField('variable', label=l_('Variables'), rolename='obj',
                    names=('var', 'ivar', 'cvar'),
@@ -217,6 +222,47 @@ class JuliaFunction(JuliaObject):
 
     def needs_arglist(self):
         return self.objtype == 'function'
+
+    def handle_signature(self, sig, signode):
+        """
+        Transform a Julia signature into RST nodes.
+        Returns (fully qualified name of the thing, classname if any).
+
+        If inside a class, the current class name is handled intelligently:
+        * it is stripped from the displayed name if present
+        * it is added to the full name (return value) if not present
+        """
+        if sig == "<auto>":
+            function = self.funcdict
+        else:
+            m = julia_signature_regex.match(sig)
+            if m is None:
+                raise ValueError
+            d = m.groupdict()
+            qualifiers = d.get("qualifiers", "")
+            name = d["name"]
+            templateparameters = d.get("templateparameters", "")
+            arguments = d.get("arguments", "")
+        content = docutils.statemachine.ViewList(function["docstring"].split("\n"))
+        self.content = content
+        #raise(Exception(self.content.items))
+
+        fullname = function["name"]
+        if function["templateparameters"]:
+            fullname += "{" + ",".join(function["templateparameters"]) + "}"
+        signode['fullname'] = fullname
+        signode += addnodes.desc_name(fullname, fullname)
+        paramlist = addnodes.desc_parameterlist()
+        signode += paramlist
+        for arg in function["arguments"]:
+            x = arg["name"]
+            paramlist += addnodes.desc_parameter(x, x)
+        for arg in function["kwarguments"]:
+            x = arg["name"]
+            paramlist += desc_keyparameter(x, x)
+        # raise Exception(self.content.items)
+        return fullname
+
 
     def get_index_text(self, modname, name_cls):
         if self.objtype == 'function':
