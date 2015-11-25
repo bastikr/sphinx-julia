@@ -8,12 +8,11 @@ import juliadomain
 
 
 def getfunction(sourcepath, functionname):
-    f = tempfile.NamedTemporaryFile(mode='r', delete=True)
     directory = os.path.dirname(os.path.realpath(__file__))
     scriptpath = os.path.join(directory, "parsefile.jl")
-    subprocess.call(["julia", scriptpath, sourcepath, f.name])
-    buf = f.read()
-    f.close()
+    p = subprocess.Popen(["julia", scriptpath, sourcepath],
+            stdout=subprocess.PIPE, universal_newlines=True)
+    (buf, err) = p.communicate()
     d = eval(buf)
     for func in d:
         if func["name"] == functionname:

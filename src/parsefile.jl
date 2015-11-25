@@ -6,7 +6,7 @@ s = ArgParseSettings()
     "sourcepath"
         required = true
     "targetpath"
-        required = true
+        required = false
 end
 
 parsed_args = parse_args(s)
@@ -61,7 +61,11 @@ function write_function(f, func::Dict)
 end
 
 function save(targetpath, functions)
-    f = open(targetpath, "w")
+    if targetpath==nothing
+        f = STDOUT
+    else
+        f = open(targetpath, "w")
+    end
     write(f, "[\n    ")
     for func=functions
         write_function(f, func)
