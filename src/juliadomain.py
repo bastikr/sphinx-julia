@@ -210,7 +210,7 @@ class JuliaObject(ObjectDescription):
             self.env.temp_data['jl:class'] = None
 
 
-class JuliaModulelevel(JuliaObject):
+class JuliaFunction(JuliaObject):
     """
     Description of an object on module level (functions, data).
     """
@@ -434,7 +434,7 @@ class JuliaDomain(Domain):
     }
 
     directives = {
-        'function':        JuliaModulelevel,
+        'function':        JuliaFunction,
         # 'global':          JuliaGloballevel,
         # 'const':           JuliaEverywhere,
         'class':            JuliaClasslike,
