@@ -6,6 +6,8 @@
 Welcome to autodoc-julia's documentation!
 =========================================
 
+.. jl:class:: Float64
+
 .. function:: ode{T}(F::Function, tspan::Vector{Float64}, x0::Vector{T}; fout::Union{Function, Void} = nothing,
 
     :param Float64 reltol: Relative tolerance
@@ -21,11 +23,15 @@ Welcome to autodoc-julia's documentation!
 
 .. py:function:: f(arg, x=1)
 
-.. jl:function:: ode{T}(F::Function, tspan::Vector{Float64}, x0::Vector{T}; fout::Union{Function, Void} = nothing, reltol=1e-6)
+.. jl:function:: ode(F::Function, tspan::Vector{Float64}, x0::Vector{T}; fout::Union{Function, Void} = nothing, reltol=1e-6)
 
     :param Float64 reltol: Relative tolerance
 
-.. juliafunction:: ../src/DormandPrince45.jl ode
+.. jl:autofunction:: ../src/DormandPrince45.jl ode
+
+.. jl:autofunction:: ../src/DormandPrince45.jl interpolate
+
+.. jl:autofunction:: ../src/DormandPrince45.jl error_estimate
 
 
 Indices and tables
