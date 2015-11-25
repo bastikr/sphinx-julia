@@ -28,7 +28,7 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 julia_signature_regex = re.compile(
     r'''^ (?P<qualifiers>[\w.]*\.)?
           (?P<name>\w+)  \s*
-          (?: \{(?P<templateparameters>.*)\})
+          (?: \{(?P<templateparameters>.*)\})?
           (?: \((?P<arguments>.*)\)
           )? $
           ''', re.VERBOSE)
@@ -57,13 +57,15 @@ def parsearguments(signode, arguments):
     if len(a) == 1:
         kwargs = []
     elif len(a) == 2:
-        kwargs = a[1]
+        kwargs = a[1].split(",")
     else:
         raise ValueError()
     for arg in args:
-        paramlist += addnodes.desc_parameter(arg, arg)
-    for arg in kwargs.split(","):
-        paramlist += desc_keyparameter(arg, arg)
+        x = arg.strip()
+        paramlist += addnodes.desc_parameter(x, x)
+    for arg in kwargs:
+        x = arg.strip()
+        paramlist += desc_keyparameter(x, x)
     # paramlist += addnodes.desc_parameter(kwargs, kwargs)
     signode += paramlist
 
