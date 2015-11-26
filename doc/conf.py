@@ -51,8 +51,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Sphinx-Julia'
-copyright = '2015, Sebastian Kraemer'
-author = 'Sebastian Kraemer'
+copyright = u'2015, Sebastian Krämer'
+author = u'Sebastian Krämer'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -227,7 +227,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'Sphinx-Julia.tex', 'Sphinx-Julia Documentation',
-   'Sebastian Krämer', 'manual'),
+   r'Sebastian Kr\"amer', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
