@@ -51,8 +51,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Sphinx-Julia'
-copyright = u'2015, Sebastian Krämer'
-author = u'Sebastian Krämer'
+copyright = '2015, Sebastian Kraemer'
+author = 'Sebastian Kraemer'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
