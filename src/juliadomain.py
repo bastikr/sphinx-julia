@@ -177,13 +177,11 @@ def depart_desc_keyparameter(self, node):
 def update_builder(app):
     app.env.juliaparser = juliaparser.JuliaParser()
     translator = app.builder.translator_class
-    # raise Exception(translator)
     translator.first_kwordparam = True
     _visit_desc_parameterlist = translator.visit_desc_parameterlist
     def visit_desc_parameterlist(self, node):
         self.first_kwordparam = True
         _visit_desc_parameterlist(self, node)
-    #f = types.MethodType(visit_desc_parameterlist, translator)
     translator.visit_desc_parameterlist = visit_desc_parameterlist
 
 

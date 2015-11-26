@@ -43,12 +43,3 @@ class JuliaParser:
         (buf, err) = p.communicate()
         function = eval(buf)
         return function
-
-# f = r"""
-# function f{T}(a::Union{Int, Float}, b=2; d::Vector{T}=ones(T, 5))
-#     return a
-# end
-# """
-
-# j = JuliaParser()
-# print(j.parsefunction(f))
