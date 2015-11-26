@@ -111,6 +111,7 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 # Julia settings
+julia_signature_show_qualifier = False
 julia_signature_show_type = True
 julia_signature_show_default = True
 julia_docstring_show_type = True

@@ -14,6 +14,7 @@ end
 
 
 function write_function(f, func::Dict)
+    qualifier = func["qualifier"]
     name = string(func["name"])
     templateparameters = [string(x) for x=func["templateparameters"]]
     arguments = func["arguments"]
@@ -21,6 +22,7 @@ function write_function(f, func::Dict)
     docstring = func["docstring"]
 
     write(f, "{")
+    write(f, "'qualifier' : '$qualifier',")
     write(f, "'name' : '$name',")
     write(f, "'templateparameters' : [")
     for arg=templateparameters
@@ -84,20 +86,23 @@ function handle_parameter(parameter)
                 d["type"] = keyword.args[2]
             end
             d["value"] = parameter.args[2]
-        else
-            @assert parameter.head == Symbol("::")
+        elseif parameter.head == Symbol("::")
             d["name"] = parameter.args[1]
             d["type"] = parameter.args[2]
+        elseif parameter.head == Symbol("...")
+            d["name"] = string(parameter.args[1])*"..."
+        else
+            error("Unknown parameter type: {parameter}")
         end
     end
     return d
 end
 
-function handle_signature(signature)
+function handle_parameters(signature)
     d = Dict("params"=>Dict[], "kwparams"=>Dict[])
     for arg=signature
         if typeof(arg)==Expr && arg.head==:parameters
-            d["kwparams"] = handle_signature(arg.args)[1]
+            d["kwparams"] = handle_parameters(arg.args)[1]
         else
             push!(d["params"], handle_parameter(arg))
         end
@@ -107,15 +112,31 @@ end
 
 function handle_function(state::Dict, x::Expr)
     funcexpr = x.args[1]
-    name = funcexpr.args[1]
-    if typeof(name) == Symbol
-        templateparameters = Symbol[]
+    definition = funcexpr.args[1]
+    if typeof(definition) == Symbol
+        name = definition
+        qualifier = ""
+        templateparameters = []
     else
-        templateparameters = Symbol[name.args[2:end]...]
-        name = name.args[1]
+        @assert typeof(definition) == Expr
+        if definition.head == :curly
+            fullname = definition.args[1]
+            templateparameters = [string(x) for x=definition.args[2:end]]
+        else
+            fullname = definition
+            templateparameters = []
+        end
+        if typeof(fullname) == Symbol
+            qualifier = ""
+            name = fullname
+        else
+            @assert fullname.head == Symbol(".")
+            qualifier = fullname.args[1]
+            name = fullname.args[2].value
+        end
     end
     signature = funcexpr.args[2:end]
-    arguments, kwarguments = handle_signature(signature)
+    arguments, kwarguments = handle_parameters(signature)
     if length(state["nodes"])>1
         parentnode = state["nodes"][end-1]
         if parentnode.head == :macrocall && parentnode.args[1] == symbol("@doc")
@@ -128,6 +149,7 @@ function handle_function(state::Dict, x::Expr)
     end
     funcs = get(state, "functions", [])
     d = Dict("name"=>name,
+             "qualifier"=>qualifier,
              "templateparameters"=>templateparameters,
              "arguments"=>arguments,
              "kwarguments"=>kwarguments,
@@ -136,12 +158,20 @@ function handle_function(state::Dict, x::Expr)
     push!(funcs, d)
 end
 
+function handle_inlinefunction(state::Dict, x::Expr)
+    name = x.args[1].args[1]
+    println(x.args[1].args[2:end])
+end
+
 function walk_ast(state::Dict, x::Expr)
     nodes = get(state, "nodes", Expr[])
     push!(nodes, x)
-
     if x.head == :function
         handle_function(state, x)
+    elseif x.head == Symbol("=")
+        if typeof(x.args[1]) == Expr && x.args[1].head == :call
+            handle_function(state, x)
+        end
     else
         for arg=x.args
             if typeof(arg)==Expr
@@ -152,6 +182,15 @@ function walk_ast(state::Dict, x::Expr)
     pop!(nodes)
 end
 
-
+# f = """
+# \"""
+# Create composite bases.
+# \"""
+# compose(b1::Basis, b2::Basis) = CompositeBasis(b1, b2)
+# """
+# ast = parse(f)
+# d = Dict()
+# walk_ast(d, ast)
+# println(d)
 
 end #module

@@ -76,7 +76,10 @@ class JuliaFunction(sphinx.directives.ObjectDescription):
 
         # Full function name: name{T}
         # modules are not handled at the moment
-        fullname = function["name"]
+        fullname = ""
+        if env.config.julia_signature_show_qualifier and function["qualifier"]:
+            fullname += function["qualifier"] + "."
+        fullname +=  function["name"]
         if function["templateparameters"]:
             fullname += "{" + ",".join(function["templateparameters"]) + "}"
 
@@ -186,6 +189,7 @@ def update_builder(app):
 
 
 def setup(app):
+    app.add_config_value('julia_signature_show_qualifier', True, 'html')
     app.add_config_value('julia_signature_show_type', True, 'html')
     app.add_config_value('julia_signature_show_default', True, 'html')
     app.add_config_value('julia_docstring_show_type', True, 'html')

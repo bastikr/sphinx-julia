@@ -11,7 +11,8 @@ class JuliaParser:
         directory = os.path.dirname(os.path.realpath(__file__))
         scriptpath = os.path.join(directory, "parsefile.jl")
         p = subprocess.Popen(["julia", scriptpath, sourcepath],
-                stdout=subprocess.PIPE, universal_newlines=True)
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                universal_newlines=True)
         (buf, err) = p.communicate()
         if err:
             raise Exception(err)
@@ -32,8 +33,12 @@ class JuliaParser:
         else:
             d = self.parsefile(sourcepath)
         for func in d:
+            if func["qualifier"]+"."+func["name"] == functionname:
+                return func
+        for func in d:
             if func["name"] == functionname:
                 return func
+        raise ValueError("Function {} not found in: {}".format(functionname, sourcepath))
 
     def parsefunction(self, functionstring):
         directory = os.path.dirname(os.path.realpath(__file__))
