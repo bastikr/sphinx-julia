@@ -6,11 +6,15 @@ class JuliaParser:
     cached_files = {}
 
     def parsefile(self, sourcepath):
+        if not os.path.exists(sourcepath):
+            raise ValueError("Can't parse julia file: " + sourcepath)
         directory = os.path.dirname(os.path.realpath(__file__))
         scriptpath = os.path.join(directory, "parsefile.jl")
         p = subprocess.Popen(["julia", scriptpath, sourcepath],
                 stdout=subprocess.PIPE, universal_newlines=True)
         (buf, err) = p.communicate()
+        if err:
+            raise Exception(err)
         d = eval(buf)
         self.cached_files[sourcepath] = d
         return d

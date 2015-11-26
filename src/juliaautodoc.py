@@ -1,10 +1,23 @@
-import re
-import sphinx
+import os
 import docutils
 import juliadomain
+import sphinx.ext.napoleon
 
 
+def _parse_keyword_arguments_section(self, section):
+    fields = self._consume_fields()
+    if self._config.napoleon_use_param:
+        lines = []
+        for _name, _type, _desc in fields:
+            field = ':kwparam %s: ' % _name
+            lines.extend(self._format_block(field, _desc))
+            if _type:
+                lines.append(':kwtype %s: %s' % (_name, _type))
+        return lines + ['']
+    else:
+        return self._format_fields('Keyword Parameters', fields)
 
+sphinx.ext.napoleon.docstring.GoogleDocstring._parse_keyword_arguments_section = _parse_keyword_arguments_section
 
 
 class FunctionDirective(docutils.parsers.rst.Directive):
@@ -22,9 +35,11 @@ class FunctionDirective(docutils.parsers.rst.Directive):
 
     def run(self):
         env = self.state.document.settings.env
+        sourcedir = env.app.config.juliaautodoc_basedir
         sourcename = self.arguments[0]
+        sourcepath = os.path.join(sourcedir, sourcename)
         functionname = self.arguments[1]
-        function = env.juliaparser.function_from_file(sourcename, functionname)
+        function = env.juliaparser.function_from_file(sourcepath, functionname)
         docstringlines = function["docstring"].split("\n")
         env.app.emit('autodoc-process-docstring',
                                   "function", function["name"], None,

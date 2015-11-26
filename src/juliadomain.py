@@ -11,6 +11,7 @@ The Julia domain.
 
 import docutils
 from docutils import nodes
+from docutils.statemachine import ViewList
 
 import sphinx
 from sphinx.locale import l_
@@ -65,12 +66,13 @@ class JuliaFunction(sphinx.directives.ObjectDescription):
         # Directive was invoked from autodoc
         if sig == "<auto>":
             function = self.function
-            content = docutils.statemachine.ViewList(function["docstring"].split("\n"))
+            content = ViewList(function["docstring"].split("\n"))
             self.content = content
         # Directive was invoked normally
         else:
             functionstring = "function " + sig + "end"
             function = env.juliaparser.parsefunction(functionstring)
+            self.function = function
 
         # Full function name: name{T}
         # modules are not handled at the moment
@@ -85,11 +87,31 @@ class JuliaFunction(sphinx.directives.ObjectDescription):
         signode += paramlist
         for arg in function["arguments"]:
             x = arg["name"]
+            if env.config.julia_signature_show_type and arg["type"]:
+                x += "::" + arg["type"]
+            if env.config.julia_signature_show_default and arg["value"]:
+                x += "=" + arg["value"]
             paramlist += sphinx.addnodes.desc_parameter(x, x)
         for arg in function["kwarguments"]:
             x = arg["name"]
+            if env.config.julia_signature_show_type and arg["type"]:
+                x += "::" + arg["type"]
+            if env.config.julia_signature_show_default and arg["value"]:
+                x += "=" + arg["value"]
             paramlist += desc_keyparameter(x, x)
         return fullname
+
+    def before_content(self):
+        env = self.state.document.settings.env
+        if env.config.julia_docstring_show_type:
+            l = []
+            for arg in self.function["arguments"]:
+                if arg["type"]:
+                    l.append(":type {name}: :class:`{type}`\n".format(**arg))
+            for arg in self.function["kwarguments"]:
+                if arg["type"]:
+                    l.append(":kwtype {name}: :class:`{type}`\n".format(**arg))
+            self.content.append(ViewList(l))
 
 
 class JuliaDomain(sphinx.domains.Domain):
@@ -166,6 +188,10 @@ def update_builder(app):
 
 
 def setup(app):
+    app.add_config_value('julia_signature_show_type', True, 'html')
+    app.add_config_value('julia_signature_show_default', True, 'html')
+    app.add_config_value('julia_docstring_show_type', True, 'html')
+
     app.add_node(desc_keyparameter,
                 html=(visit_desc_keyparameter, depart_desc_keyparameter)
                 )

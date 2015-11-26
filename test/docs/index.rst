@@ -15,11 +15,11 @@ Welcome to autodoc-julia's documentation!
   :param x: bla
 
 
-.. jl:autofunction:: ../src/DormandPrince45.jl ode
+.. jl:autofunction:: src/DormandPrince45.jl ode
 
-.. jl:autofunction:: ../src/DormandPrince45.jl interpolate
+.. jl:autofunction:: src/DormandPrince45.jl interpolate
 
-.. jl:autofunction:: ../src/DormandPrince45.jl error_estimate
+.. jl:autofunction:: src/DormandPrince45.jl error_estimate
 
 
 Indices and tables
