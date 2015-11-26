@@ -4,31 +4,7 @@ import docutils
 import juliadomain
 
 
-def parse_docstringarguments(argumentsection):
-    terms = re.split("\n\s{4}(?=\w)", argumentsection)
-    arguments = []
-    for term in terms:
-        if not term.strip():
-            continue
-        name, description = term.split("\n", 1)
-        name = name.strip()
-        description = description.strip().replace("\n" + " "*8, " ")
-        arguments.append([name, description])
-    return arguments
 
-
-def parse_docstring(docstring):
-    arguments = {}
-    s = docstring.split("\n**Arguments**\n")
-    header = s[0].strip("\n ")
-    if len(s) != 2:
-        return header, arguments
-    s = s[1].split("\n**Optional Arguments**\n")
-    arguments["Arguments"] = parse_docstringarguments(s[0])
-    if len(s) != 2:
-        return header, arguments
-    arguments["Optional Arguments"] = parse_docstringarguments(s[1])
-    return header, arguments
 
 
 class FunctionDirective(docutils.parsers.rst.Directive):
@@ -49,6 +25,11 @@ class FunctionDirective(docutils.parsers.rst.Directive):
         sourcename = self.arguments[0]
         functionname = self.arguments[1]
         function = env.juliaparser.function_from_file(sourcename, functionname)
+        docstringlines = function["docstring"].split("\n")
+        env.app.emit('autodoc-process-docstring',
+                                  "function", function["name"], None,
+                                  {}, docstringlines)
+        function["docstring"] = "\n".join(docstringlines)
         self._directive.function = function
         return self._directive.run()
 
@@ -56,4 +37,6 @@ class FunctionDirective(docutils.parsers.rst.Directive):
 def setup(app):
     app.add_config_value('juliaautodoc_basedir', '..', 'html')
     app.add_directive('jl:autofunction', FunctionDirective)
+    app.add_event('autodoc-process-docstring')
+    app.add_event('autodoc-skip-member')
     return {'version': '0.1'}
