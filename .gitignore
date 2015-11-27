@@ -20,6 +20,8 @@
 
 # Python
 *.pyc
+build
+MANIFEST
 
 # Images
 *.bmp
@@ -37,7 +39,7 @@
 *~
 
 # Sphinx build files
-test/docs/_build/*
+**/_build
 
 # OS X Noise
 .DS_Store
