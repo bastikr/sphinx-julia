@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sphinx-Julia’s documentation &mdash; Sphinx-Julia 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Sphinx-Julia 0.1 documentation" href="#"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> Sphinx-Julia
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Sphinx-Julia&#8217;s documentation</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#julia-domain">Julia domain</a></li>
+<li><a class="reference internal" href="#julia-autodoc">Julia Autodoc</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">Sphinx-Julia</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>Sphinx-Julia&#8217;s documentation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sphinx-julia-s-documentation">
+<h1>Sphinx-Julia&#8217;s documentation<a class="headerlink" href="#sphinx-julia-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Sphinx-Julia provides two separate extensions for sphinx:</p>
+<dl class="docutils">
+<dt>juliadomain</dt>
+<dd>A sphinx domain for julia.</dd>
+<dt>juliaautodoc</dt>
+<dd>Automatic code extraction from julia source files.</dd>
+</dl>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>At the moment the only way is to clone the git repository from <a class="reference external" href="https://github.com/bastikr/sphinx-julia.git">https://github.com/bastikr/sphinx-julia.git</a></p>
+<div class="highlight-bash"><div class="highlight"><pre>&gt;&gt; git clone https://github.com/bastikr/sphinx-julia.git
+</pre></div>
+</div>
+<p>and either add the directory to the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">PATHONPATH</span></code> e.g.</p>
+<div class="highlight-bash"><div class="highlight"><pre>&gt;&gt; <span class="nb">export </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:~/sphinx-julia
+</pre></div>
+</div>
+<p>or alternatively add the path directly in the sphinx <code class="file docutils literal"><span class="pre">conf.py</span></code></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s">&#39;~/sphinx-julia&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The extensions can then be specified in the <code class="file docutils literal"><span class="pre">conf.py</span></code></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;sphinxjulia.juliaautodoc&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sphinxjulia.juliadomain&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sphinx.ext.napoleon&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="julia-domain">
+<h2>Julia domain<a class="headerlink" href="#julia-domain" title="Permalink to this headline">¶</a></h2>
+<p>This extension provides a sphinx <a class="reference external" href="http://sphinx-doc.org/latest/domains.html">domain</a> for the julia language using the name <code class="xref py py-obj docutils literal"><span class="pre">jl</span></code>. A domain is basically a collection of <a class="reference external" href="http://sphinx-doc.org/latest/rest.html#directives">directives</a> and roles which define markup constructs that then can be rendered to different outputs like html and latex. E.g. the python domain provides the directives <code class="xref py py-obj docutils literal"><span class="pre">py:class</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:exception</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:method</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:classmethod</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:staticmethod</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:attribute</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:module</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:currentmodule</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:decorator</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">py:decoratormethod</span></code>. Additionally it provides tools for indexing and cross-referencing these constructs.</p>
+<p>Reusing the python implementation is mostly not possible since the underlying model of Python and Julia are too different. E.g. Julia has no notion of methods associated to classes and therefore <code class="xref py py-obj docutils literal"><span class="pre">py:method</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:classmethod</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:staticmethod</span></code> are all meaningless concepts. On the other hand Julia implements abstract types, type restraints and macros.</p>
+<p>At this early point of development juliadomain provides only a fraction of that functionality, i.e. only functions are supported through the <code class="xref py py-obj docutils literal"><span class="pre">jl:function</span></code> directive.</p>
+<p>Example</p>
+<div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> myfunc{T}(a::T, b=1; state=&quot;Foo&quot;, flag::Boolean=True, kwargs...)
+
+        Solve all the things.
+
+        <span class="nc">:param a:</span> <span class="nf">Very important parameter</span>
+        <span class="nc">:type a:</span> <span class="nf">T</span>
+        <span class="nc">:param b:</span> <span class="nf">Not so important parameter</span>
+        <span class="nc">:kwparam state:</span> <span class="nf">It&#39;s a trap.</span>
+        <span class="nc">:kwparam Boolean flag:</span> <span class="nf">Do. Or do not. There is no try.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="julia-autodoc">
+<h2>Julia Autodoc<a class="headerlink" href="#julia-autodoc" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-julia"><div class="highlight"><pre><span class="s">&quot;&quot;&quot;</span>
+<span class="s">Solve all the things.</span>
+
+<span class="s">Parameters</span>
+<span class="s">----------</span>
+<span class="s">a</span>
+<span class="s">    Very important parameter.</span>
+<span class="s">b</span>
+<span class="s">    Not so important parameter</span>
+
+<span class="s">Keyword Parameters</span>
+<span class="s">------------------</span>
+<span class="s">state</span>
+<span class="s">    It&#39;s a trap.</span>
+<span class="s">flag</span>
+<span class="s">    Do. Or do not. There is no try.</span>
+<span class="s">&quot;&quot;&quot;</span>
+<span class="k">function</span><span class="nf"> myfunc</span><span class="p">{</span><span class="n">T</span><span class="p">}(</span><span class="n">a</span><span class="p">::</span><span class="n">T</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="n">state</span><span class="o">=</span><span class="s">&quot;Foo&quot;</span><span class="p">,</span> <span class="n">flag</span><span class="p">::</span><span class="n">Boolean</span><span class="o">=</span><span class="n">True</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">...</span><span class="p">)</span>
+    <span class="c"># Do stuff</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">+</span> <span class="n">state</span> <span class="o">+</span> <span class="n">flag</span> <span class="o">+</span> <span class="n">kwargs</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Sebastian Krämer.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
