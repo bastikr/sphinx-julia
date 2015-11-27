@@ -1,7 +1,8 @@
 import os
 import docutils
-import juliadomain
 import sphinx.ext.napoleon
+
+from . import juliadomain
 
 
 class FunctionDirective(docutils.parsers.rst.Directive):

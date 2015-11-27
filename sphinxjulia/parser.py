@@ -1,6 +1,9 @@
 import os
 import subprocess
 
+scriptname_parsefile = "parsetools/parsefile.jl"
+scriptname_parsefunc = "parsetools/parsefunc.jl"
+
 
 class JuliaParser:
     cached_files = {}
@@ -9,10 +12,10 @@ class JuliaParser:
         if not os.path.exists(sourcepath):
             raise ValueError("Can't parse julia file: " + sourcepath)
         directory = os.path.dirname(os.path.realpath(__file__))
-        scriptpath = os.path.join(directory, "parsefile.jl")
+        scriptpath = os.path.join(directory, scriptname_parsefile)
         p = subprocess.Popen(["julia", scriptpath, sourcepath],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                universal_newlines=True)
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             universal_newlines=True)
         (buf, err) = p.communicate()
         if err:
             raise Exception(err)
@@ -38,13 +41,17 @@ class JuliaParser:
         for func in d:
             if func["name"] == functionname:
                 return func
-        raise ValueError("Function {} not found in: {}".format(functionname, sourcepath))
+        errortext = "Function {} not found in: {}"
+        raise ValueError(errortext.format(functionname, sourcepath))
 
     def parsefunction(self, functionstring):
         directory = os.path.dirname(os.path.realpath(__file__))
-        scriptpath = os.path.join(directory, "parsefunc.jl")
+        scriptpath = os.path.join(directory, scriptname_parsefunc)
         p = subprocess.Popen(["julia", scriptpath, functionstring],
-                stdout=subprocess.PIPE, universal_newlines=True)
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             universal_newlines=True)
         (buf, err) = p.communicate()
+        if err:
+            raise Exception(err)
         function = eval(buf)
         return function

@@ -9,15 +9,23 @@ The Julia domain.
 :license: BSD, see LICENSE for details.
 """
 
-import docutils
+from six import iteritems
+
 from docutils import nodes
+from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
 import sphinx
-from sphinx.locale import l_
+from sphinx import addnodes
+from sphinx.roles import XRefRole
+from sphinx.locale import l_, _
+from sphinx.domains import Domain, ObjType, Index
+from sphinx.directives import ObjectDescription
+from sphinx.util.nodes import make_refnode
+from sphinx.util.compat import Directive
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
-import juliaparser
+from . import parser
 
 
 class desc_keyparameter(nodes.Part, nodes.Inline, nodes.TextElement):
@@ -178,7 +186,7 @@ def depart_desc_keyparameter(self, node):
 
 
 def update_builder(app):
-    app.env.juliaparser = juliaparser.JuliaParser()
+    app.env.juliaparser = parser.JuliaParser()
     translator = app.builder.translator_class
     translator.first_kwordparam = True
     _visit_desc_parameterlist = translator.visit_desc_parameterlist
