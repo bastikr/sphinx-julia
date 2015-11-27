@@ -5,7 +5,8 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
-BUILDDIR      = _build
+# BUILDDIR      = _build
+BUILDDIR      = ../../sphinx-julia-doc
 
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
@@ -49,8 +50,9 @@ help:
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
 
 clean:
-	rm -rf $(BUILDDIR)/*
-
+	rm -rf $(BUILDDIR)/*[^html]
+	rm -rf $(BUILDDIR)/html/*
+	rm $(BUILDDIR)/html/.[!.]*[^git]
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
