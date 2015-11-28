@@ -52,7 +52,7 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*[^html]
 	rm -rf $(BUILDDIR)/html/*
-	rm $(BUILDDIR)/html/.[!.]*[^git]
+	rm $(BUILDDIR)/html/.[!.][!git][!nojekyll]*
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
