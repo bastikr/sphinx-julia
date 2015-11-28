@@ -15,46 +15,58 @@ Functions
 
 Using the directive :obj:`jl:function` allows us to define a function by giving the functions signature as argument. The simple example
 
-.. code-block:: rst
+.. epigraph::
 
-    .. jl:function:: f(a)
+    .. code-block:: rst
+
+        .. jl:function:: f(a)
 
 renders as
 
-.. jl:function:: f(a)
+.. epigraph::
+
+    .. jl:function:: f(a)
 
 Additional text in the body of the directive can be used for documentation of the function
 
-.. code-block:: rst
+.. epigraph::
+
+    .. code-block:: rst
+
+        .. jl:function:: f(a)
+
+            Detailed explanation of everything.
+
+and looks like
+
+.. epigraph::
 
     .. jl:function:: f(a)
 
         Detailed explanation of everything.
 
-and looks like
-
-.. jl:function:: f(a)
-
-    Detailed explanation of everything.
-
 
 Also more complicated signatures are no problem and also most of the roles defined for the python domain can be used allowing for a nice description of the parameters. E.g.
 
-.. code-block:: rst
+.. epigraph::
 
-    .. jl:function:: myfunc{T}(a::T, b=1; state="Foo", flag::Boolean, kwargs...)
+    .. code-block:: rst
 
-        Solve all the things.
+        .. jl:function:: myfunc{T}(a::T, b=1; state="Foo", flag::Boolean, kwargs...)
 
-        :param a: Very important parameter
-        :type a: T
-        :param b: Not so important parameter
-        :kwparam state: It's a trap.
-        :kwparam flag: Do. Or do not. There is no try.
+            Solve all the things.
+
+            :param a: Very important parameter
+            :type a: T
+            :param b: Not so important parameter
+            :kwparam state: It's a trap.
+            :kwparam flag: Do. Or do not. There is no try.
 
 gives the following output
 
-.. jl:function:: myfunc{T}(a::T, b=1; state="Foo", flag=True, kwargs...)
+.. epigraph::
+
+    .. jl:function:: myfunc{T}(a::T, b=1; state="Foo", flag=True, kwargs...)
 
         Solve all the things.
 
