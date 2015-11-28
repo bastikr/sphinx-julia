@@ -1,7 +1,16 @@
 include("../src/parsetools.jl")
 
-# m = parsetools.reader.read_file("example.jl")
-m = parsetools.reader.read_file("example2.jl")
+m = parsetools.reader.read_file("../src/model.jl")
 
-# m = parsetools.reader.read_file("/usr/share/julia/base/fft/FFTW.jl")
+f = open("t.py", "w")
+parsetools.writer.write_python(f, m)
+close(f)
 
+m = parsetools.reader.read_file("../src/reader_file.jl")
+# m = parsetools.reader.read_file("example2.jl")
+
+# m = parsetools.reader.read_file("/usr/share/julia/base/abstractarray.jl")
+
+f = open("t.py", "w")
+parsetools.writer.write_python(f, m)
+close(f)

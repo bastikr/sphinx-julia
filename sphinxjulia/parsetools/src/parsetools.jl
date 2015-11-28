@@ -1,7 +1,5 @@
 module parsetools
 
-export model, reader
-
 module model
     include("model.jl")
 end
@@ -12,4 +10,10 @@ module reader
     include("reader_file.jl")
 end
 
+module writer
+    export write_python
+
+    include("writer_python.jl")
 end
+
+end # module

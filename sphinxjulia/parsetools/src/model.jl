@@ -1,12 +1,13 @@
+abstract JuliaModel
 
-type Argument
+type Argument <: JuliaModel
     name::AbstractString
     argumenttype::AbstractString
     value::AbstractString
 end
 
 
-type Signature
+type Signature<: JuliaModel
     positionalarguments::Vector{Argument}
     optionalarguments::Vector{Argument}
     keywordarguments::Vector{Argument}
@@ -14,7 +15,7 @@ type Signature
     kwvarargsname::AbstractString
 end
 
-type Function
+type Function<: JuliaModel
     name::AbstractString
     modulename::AbstractString
     templateparameters::Vector{AbstractString}
@@ -22,20 +23,20 @@ type Function
     docstring::AbstractString
 end
 
-type Field
+type Field<: JuliaModel
     name::AbstractString
     fieldtype::AbstractString
     value::AbstractString
 end
 
-type AbstractType
+type AbstractType<: JuliaModel
     name::AbstractString
     templateparameters::Vector{AbstractString}
     parenttype::AbstractString
     docstring::AbstractString
 end
 
-type CompositeType
+type CompositeType<: JuliaModel
     name::AbstractString
     templateparameters::Vector{AbstractString}
     parenttype::AbstractString
@@ -44,7 +45,7 @@ type CompositeType
     docstring::AbstractString
 end
 
-type Module
+type Module<: JuliaModel
     name::AbstractString
     modules::Vector{Module}
     abstracttypes::Vector{AbstractType}
