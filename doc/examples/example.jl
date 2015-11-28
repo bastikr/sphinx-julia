@@ -1,16 +1,16 @@
-
+# examples/example.jl
 """
 Solve all the things.
 
-Parameters
-----------
+Arguments
+---------
 a
     Very important parameter.
 b
     Not so important parameter
 
-Keyword Parameters
-------------------
+Keyword Arguments
+-----------------
 state
     It's a trap.
 flag
