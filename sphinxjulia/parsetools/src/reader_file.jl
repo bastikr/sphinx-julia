@@ -1,9 +1,5 @@
 using ..model
 
-const evalfunctions = [
-    """Function("eval","",AbstractString[],Signature([Argument("x","","")],Argument[],Argument[],"",""),"")""",
-    """Function("eval","",AbstractString[],Signature([Argument("m","",""),Argument("x","","")],Argument[],Argument[],"",""),"")"""
-    ]
 
 function escaped_string(x)
     s = string(x)
@@ -286,7 +282,7 @@ function read_module(x::Expr, docstring::AbstractString)
             push!(compositetypes, read_compositetype(arg, innerdocstring))
         elseif isfunction(arg)
             func = read_function(arg, innerdocstring)
-            if func.name == "eval" && string(func) in evalfunctions
+            if func.name == "eval"
                 continue
             end
             push!(functions, func)

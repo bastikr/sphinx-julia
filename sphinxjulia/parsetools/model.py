@@ -1,18 +1,23 @@
+from docutils import nodes
 
-class JuliaModel:
+class JuliaModel(nodes.General, nodes.Element):
     __fields__ = None
 
     def __init__(self, **kwargs):
         for fieldname in self.__fields__:
             setattr(self, fieldname, kwargs.pop(fieldname))
+        nodes.General.__init__(self)
+        nodes.Element.__init__(self)
         assert len(kwargs) == 0
 
 class Module(JuliaModel):
+    orderedobjects = None
     __fields__ = ("name", "modules", "abstracttypes", "compositetypes", "functions", "docstring")
 
 
 class CompositeType(JuliaModel):
     __fields__ = ("name", "templateparameters", "parenttype", "fields", "constructors", "docstring")
+
 
 class AbstractType(JuliaModel):
     __fields__ = ("name", "templateparameters", "parenttype", "docstring")

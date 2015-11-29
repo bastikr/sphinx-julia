@@ -1,10 +1,10 @@
 # module mymodule2
-using quantumoptics
 
 """
 asdsad
 """
-quantumoptics.fockstate
+
+abstract T
 
 # type f
 #     a::Int
