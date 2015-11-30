@@ -1,4 +1,4 @@
-# module mymodule2
+module mymodule2
 
 """
 asdsad
@@ -6,6 +6,10 @@ asdsad
 
 abstract T
 
+function asfsaf(a)
+end
+
+end
 # type f
 #     a::Int
 # end

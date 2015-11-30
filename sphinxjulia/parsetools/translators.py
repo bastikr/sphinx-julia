@@ -52,7 +52,7 @@ templates = {
             <em class="property">module </em>
             <code class="descname">{name}</code>
           </dt>
-          <dd>
+          <dd class="body">
         ''',
         '''
           </dd>

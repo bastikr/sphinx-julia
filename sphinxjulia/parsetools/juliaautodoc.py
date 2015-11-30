@@ -1,5 +1,6 @@
 from docutils.parsers.rst import Directive
 # import sphinx.ext.napoleon
+import model
 
 
 class AutoFileDirective(Directive):
@@ -11,8 +12,8 @@ class AutoFileDirective(Directive):
     def run(self):
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
-        m = self.env.juliaparser.parsefile(sourcepath)
-        return m.create_nodes(self)
+        module = self.env.juliaparser.parsefile(sourcepath)
+        return module.create_nodes(self)
 
 
 class AutoFunctionDirective(Directive):
@@ -24,8 +25,8 @@ class AutoFunctionDirective(Directive):
     def run(self):
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
-        m = self.env.juliaparser.parsefile(sourcepath)
-        functions = m.match_functions(self.arguments[1])
+        module = self.env.juliaparser.parsefile(sourcepath)
+        functions = module.match_content(model.Function, self.arguments[1])
         nodes = []
         for function in functions:
             nodes.extend(function.create_nodes(self))
@@ -42,7 +43,7 @@ class AutoCompositeType(Directive):
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
         m = self.env.juliaparser.parsefile(sourcepath)
-        types = m.match_compositetypes(self.arguments[1])
+        types = m.match_content(model.CompositeType, self.arguments[1])
         nodes = []
         for t in types:
             nodes.extend(t.create_nodes(self))
@@ -58,8 +59,8 @@ class AutoAbstractType(Directive):
     def run(self):
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
-        m = self.env.juliaparser.parsefile(sourcepath)
-        types = m.match_abstracttypes(self.arguments[1])
+        module = self.env.juliaparser.parsefile(sourcepath)
+        types = module.match_content(model.AbstractType, self.arguments[1])
         nodes = []
         for t in types:
             nodes.extend(t.create_nodes(self))

@@ -25,12 +25,13 @@ class JuliaModelNode(JuliaModel, nodes.Admonition, nodes.Element):
         return []
 
     def create_nodes(self, directive):
-        self.children = sphinx.addnodes.desc_content()
-        docstringnode = self.parsedocstring(directive)
-        self.children += docstringnode
+        # self.children = sphinx.addnodes.desc_content()
+        # self.children += self.parsedocstring(directive)
+        self.children = [self.parsedocstring(directive)]
         subnodes = self.subnodes(directive)
         for node in subnodes:
-            self.children += node
+            self.children.append(node.create_nodes(directive))
+        # self.children = [self.parsedocstring(directive), *subnodes]
         return [self]
 
     def parsedocstring(self, directive):
@@ -47,42 +48,22 @@ class JuliaModelNode(JuliaModel, nodes.Admonition, nodes.Element):
 
 class Module(JuliaModelNode):
     orderedobjects = None
-    __fields__ = ("name", "modules", "abstracttypes", "compositetypes", "functions", "docstring")
+    __fields__ = ("name", "body", "docstring")
 
     def subnodes(self, directive):
         l = []
-        for n in self.modules + self.abstracttypes + self.compositetypes + self.functions:
+        for n in self.body:
             l.extend(n.create_nodes(directive))
         return l
 
-    def match_functions(self, pattern):
+    def match_content(self, objtype, pattern):
         *modulepattern, funcpattern = pattern.split(".")
         l = []
-        for module in self.modules:
-            l.extend(module.match_functions(pattern))
-        for function in self.functions:
-            if function.match(funcpattern):
-                l.append(function)
-        return l
-
-    def match_abstracttypes(self, pattern):
-        *modulepattern, typepattern = pattern.split(".")
-        l = []
-        for module in self.modules:
-            l.extend(module.match_abstracttypes(pattern))
-        for t in self.abstracttypes:
-            if t.match(typepattern):
-                l.append(t)
-        return l
-
-    def match_compositetypes(self, pattern):
-        *modulepattern, typepattern = pattern.split(".")
-        l = []
-        for module in self.modules:
-            l.extend(module.match_compositetypes(pattern))
-        for t in self.compositetypes:
-            if t.match(typepattern):
-                l.append(t)
+        for obj in self.body:
+            if isinstance(obj, Module):
+                l.extend(obj.match_content(objtype, pattern))
+            if isinstance(obj, objtype):
+                l.extend(obj.match(pattern))
         return l
 
 
@@ -91,9 +72,9 @@ class CompositeType(JuliaModelNode):
 
     def match(self, pattern):
         if pattern == self.name:
-            return True
+            return [self]
         else:
-            return False
+            return []
 
 
 class AbstractType(JuliaModelNode):
@@ -101,9 +82,9 @@ class AbstractType(JuliaModelNode):
 
     def match(self, pattern):
         if pattern == self.name:
-            return True
+            return [self]
         else:
-            return False
+            return []
 
 
 class Function(JuliaModelNode):
@@ -112,9 +93,10 @@ class Function(JuliaModelNode):
     def match(self, pattern):
         namepattern, *signaturepattern = pattern.split("(")
         if namepattern == self.name:
-            return True
+            return [self]
         else:
-            return False
+            return []
+
 
 class Field(JuliaModel):
     __fields__ = ("name", "fieldtype", "value")

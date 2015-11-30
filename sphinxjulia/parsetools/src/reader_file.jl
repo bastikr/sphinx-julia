@@ -264,10 +264,7 @@ end
 function read_module(x::Expr, docstring::AbstractString)
     @assert x.head == :module
     name = string(x.args[2])
-    modules = model.Module[]
-    abstracttypes = model.AbstractType[]
-    compositetypes = model.CompositeType[]
-    functions = model.Function[]
+    body = Union{model.Module, model.AbstractType, model.CompositeType, model.Function}[]
     @assert length(x.args) == 3
     @assert typeof(x.args[3]) == Expr
     @assert x.args[3].head == :block
@@ -277,17 +274,17 @@ function read_module(x::Expr, docstring::AbstractString)
             continue
         end
         if arg.head == :abstract
-            push!(abstracttypes, read_abstracttype(arg, innerdocstring))
+            push!(body, read_abstracttype(arg, innerdocstring))
         elseif arg.head == :type
-            push!(compositetypes, read_compositetype(arg, innerdocstring))
+            push!(body, read_compositetype(arg, innerdocstring))
         elseif isfunction(arg)
             func = read_function(arg, innerdocstring)
             if func.name == "eval"
                 continue
             end
-            push!(functions, func)
+            push!(body, func)
         elseif ismodule(arg)
-            push!(modules, read_module(arg, innerdocstring))
+            push!(body, read_module(arg, innerdocstring))
         elseif arg.head == :toplevel || arg.head == :typealias ||
                arg.head == :macro || arg.head == :const || arg.head == :importall ||
                arg.head == :export || arg.head == :import || arg.head == :global ||
@@ -304,7 +301,7 @@ function read_module(x::Expr, docstring::AbstractString)
             error()
         end
     end
-    model.Module(name, modules, abstracttypes, compositetypes, functions, docstring)
+    model.Module(name, body, docstring)
 end
 
 
@@ -315,9 +312,8 @@ function read_file(sourcepath)
     buf = "module __temp__\n $(buf)\nend"
     ast = parse(buf)
     m = read_module(ast, "")
-    if length(m.functions) == length(m.compositetypes) == length(m.abstracttypes) == 0 &&
-            length(m.modules) == 1
-        return m.modules[1]
+    if length(m.body) == 1 && typeof(m.body[1]) == model.Module
+        return m.body[1]
     else
         m.name = ""
         return m

@@ -6,7 +6,6 @@ type Argument <: JuliaModel
     value::AbstractString
 end
 
-
 type Signature<: JuliaModel
     positionalarguments::Vector{Argument}
     optionalarguments::Vector{Argument}
@@ -47,10 +46,7 @@ end
 
 type Module<: JuliaModel
     name::AbstractString
-    modules::Vector{Module}
-    abstracttypes::Vector{AbstractType}
-    compositetypes::Vector{CompositeType}
-    functions::Vector{Function}
+    body::Vector{Union{Module,AbstractType,CompositeType,Function}}
     docstring::AbstractString
 end
 

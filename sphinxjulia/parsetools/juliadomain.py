@@ -41,12 +41,9 @@ class ModuleDirective(JuliaDirective):
         text = "module " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("module", text)
         for node in contentnode:
-            if isinstance(node, model.AbstractType):
-                m.abstracttypes.append(node)
-            elif isinstance(node, model.CompositeType):
-                m.compositetypes.append(node)
-            elif isinstance(node, model.Function):
-                m.functions.append(node)
+            if isinstance(node, (model.AbstractType, model.CompositeType,
+                                 model.Function, model.Module)):
+                m.body.append(node)
         return m
 
 
