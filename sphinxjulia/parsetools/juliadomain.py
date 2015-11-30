@@ -28,50 +28,50 @@ class JuliaDirective(Directive):
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
         self.indexnode = addnodes.index(entries=[])
-        return self.parse()
+        contentnode = addnodes.desc_content()
+        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        m = self.parse(contentnode)
+        m.children = contentnode
+        return [m]
 
 
 class ModuleDirective(JuliaDirective):
-    def parse(self):
+
+    def parse(self, contentnode):
         text = "module " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("module", text)
-        contentnode = addnodes.desc_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
-        m.orderedobjects = []
         for node in contentnode:
-            m.orderedobjects.append(node)
             if isinstance(node, model.AbstractType):
                 m.abstracttypes.append(node)
             elif isinstance(node, model.CompositeType):
                 m.compositetypes.append(node)
             elif isinstance(node, model.Function):
                 m.functions.append(node)
-        # self.env.app.warn(contentnode)
-        return [m]
+        return m
 
 
 class FunctionDirective(JuliaDirective):
-    def parse(self):
+
+    def parse(self, contentnode):
         text = "function " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("function", text)
-        m.docstring = "".join(self.content).strip()
-        return [m]
+        return m
 
 
 class AbstractTypeDirective(JuliaDirective):
-    def parse(self):
+
+    def parse(self, contentnode):
         text = "abstract " + self.arguments[0]
         m = self.env.juliaparser.parsestring("abstracttype", text)
-        m.docstring = "".join(self.content).strip()
-        return [m]
+        return m
 
 
 class CompositeTypeDirective(JuliaDirective):
-    def parse(self):
+
+    def parse(self, contentnode):
         text = "type " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("compositetype", text)
-        m.docstring = "".join(self.content).strip()
-        return [m]
+        return m
 
 
 class JuliaDomain(sphinx.domains.Domain):

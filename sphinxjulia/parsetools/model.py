@@ -11,11 +11,11 @@ class JuliaModel:
         assert len(kwargs) == 0
 
 
-class JuliaModelNode(JuliaModel, nodes.General, nodes.Element):
+class JuliaModelNode(JuliaModel, nodes.Admonition, nodes.Element):
 
     def __init__(self, **kwargs):
         JuliaModel.__init__(self, **kwargs)
-        nodes.General.__init__(self)
+        nodes.Admonition.__init__(self)
         nodes.Element.__init__(self)
 
 
