@@ -92,7 +92,7 @@ class JuliaDomain(sphinx.domains.Domain):
 
     directives = {
         'function':         FunctionDirective,
-        'abstracttype':     AbstractTypeDirective,
+        'abstract':     AbstractTypeDirective,
         'type':             CompositeTypeDirective,
         'module':           ModuleDirective,
     }
