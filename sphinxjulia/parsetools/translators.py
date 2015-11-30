@@ -90,7 +90,7 @@ class HTML:
 
     def visit_Module(self, node):
         t = templates["Module"][0]
-        x = t.format(name=node.name, docstring=node.docstring)
+        x = t.format(name=node.name)
         self.body.append(x)
 
     def depart_Module(self, node):
