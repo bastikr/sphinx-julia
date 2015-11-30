@@ -23,7 +23,7 @@ class JuliaParser:
         if not os.path.exists(sourcepath):
             raise ValueError("Can't find file: " + sourcepath)
         directory = os.path.dirname(os.path.realpath(__file__))
-        scriptpath = os.path.join(directory, scriptname_parsefile)
+        scriptpath = os.path.join(directory, scriptdir, scripts["file"])
         p = subprocess.Popen(["julia", scriptpath, sourcepath],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              universal_newlines=True)
