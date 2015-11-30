@@ -1,13 +1,10 @@
-# xrefs
-# directives
+from docutils import nodes
+from docutils.parsers.rst import Directive
+
+import sphinx.domains
+
 import model
 import modelparser
-
-from docutils.parsers.rst import Directive, directives
-from docutils import nodes
-
-import sphinx
-import sphinx.domains
 
 
 class JuliaDirective(Directive):

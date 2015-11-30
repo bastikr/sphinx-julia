@@ -1,5 +1,5 @@
 from docutils.parsers.rst import Directive
-# import sphinx.ext.napoleon
+
 import model
 
 
@@ -53,23 +53,6 @@ class AutoAbstractType(AutoDirective):
     modelclass = model.AbstractType
 
 
-# Ugly hack to use :kwparam: in napoleon docstring parsing.
-# def _parse_keyword_arguments_section(self, section):
-#     fields = self._consume_fields()
-#     if self._config.napoleon_use_param:
-#         lines = []
-#         for _name, _type, _desc in fields:
-#             field = ':kwparam %s: ' % _name
-#             lines.extend(self._format_block(field, _desc))
-#             if _type:
-#                 lines.append(':kwtype %s: %s' % (_name, _type))
-#         return lines + ['']
-#     else:
-#         return self._format_fields('Keyword Parameters', fields)
-
-# sphinx.ext.napoleon.docstring.GoogleDocstring._parse_keyword_arguments_section = _parse_keyword_arguments_section
-
-
 def setup(app):
     # app.add_config_value('juliaautodoc_basedir', '..', 'html')
     app.add_directive('jl:autofile', AutoFileDirective)
@@ -79,4 +62,3 @@ def setup(app):
     app.add_directive('jl:autoabstract', AutoAbstractType)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-skip-member')
-    return {'version': '0.1'}
