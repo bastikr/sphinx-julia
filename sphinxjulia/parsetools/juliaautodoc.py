@@ -3,6 +3,23 @@ from docutils.parsers.rst import Directive
 import model
 
 
+class AutoDirective(Directive):
+    has_content = False
+    required_arguments = 2
+    optional_arguments = 0
+    final_argument_whitespace = False
+
+    def run(self):
+        self.env = self.state.document.settings.env
+        sourcepath = self.arguments[0]
+        module = self.env.juliaparser.parsefile(sourcepath)
+        objects = module.match(self.arguments[1], self.modelclass)
+        nodes = []
+        for obj in objects:
+            nodes.append(obj.create_node(self))
+        return nodes
+
+
 class AutoFileDirective(Directive):
     has_content = False
     required_arguments = 1
@@ -20,55 +37,20 @@ class AutoFileDirective(Directive):
             return [m]
 
 
-class AutoFunctionDirective(Directive):
-    has_content = False
-    required_arguments = 2
-    optional_arguments = 0
-    final_argument_whitespace = False
-
-    def run(self):
-        self.env = self.state.document.settings.env
-        sourcepath = self.arguments[0]
-        module = self.env.juliaparser.parsefile(sourcepath)
-        functions = module.match_content(model.Function, self.arguments[1])
-        nodes = []
-        for function in functions:
-            nodes.extend(function.create_nodes(self))
-        return nodes
+class AutoModuleDirective(AutoDirective):
+    modelclass = model.Module
 
 
-class AutoCompositeType(Directive):
-    has_content = False
-    required_arguments = 2
-    optional_arguments = 0
-    final_argument_whitespace = False
-
-    def run(self):
-        self.env = self.state.document.settings.env
-        sourcepath = self.arguments[0]
-        m = self.env.juliaparser.parsefile(sourcepath)
-        types = m.match_content(model.CompositeType, self.arguments[1])
-        nodes = []
-        for t in types:
-            nodes.extend(t.create_nodes(self))
-        return nodes
+class AutoFunctionDirective(AutoDirective):
+    modelclass = model.Function
 
 
-class AutoAbstractType(Directive):
-    has_content = False
-    required_arguments = 2
-    optional_arguments = 0
-    final_argument_whitespace = False
+class AutoCompositeType(AutoDirective):
+    modelclass = model.CompositeType
 
-    def run(self):
-        self.env = self.state.document.settings.env
-        sourcepath = self.arguments[0]
-        module = self.env.juliaparser.parsefile(sourcepath)
-        types = module.match_content(model.AbstractType, self.arguments[1])
-        nodes = []
-        for t in types:
-            nodes.extend(t.create_nodes(self))
-        return nodes
+
+class AutoAbstractType(AutoDirective):
+    modelclass = model.AbstractType
 
 
 # Ugly hack to use :kwparam: in napoleon docstring parsing.
@@ -91,6 +73,7 @@ class AutoAbstractType(Directive):
 def setup(app):
     # app.add_config_value('juliaautodoc_basedir', '..', 'html')
     app.add_directive('jl:autofile', AutoFileDirective)
+    app.add_directive('jl:automodule', AutoModuleDirective)
     app.add_directive('jl:autofunction', AutoFunctionDirective)
     app.add_directive('jl:autotype', AutoCompositeType)
     app.add_directive('jl:autoabstract', AutoAbstractType)

@@ -48,22 +48,20 @@ class Module(JuliaModelNode):
             l.append(n.create_node(directive))
         return l
 
-    def match_content(self, objtype, pattern):
-        *modulepattern, funcpattern = pattern.split(".")
+    def match(self, pattern, objtype):
         l = []
+        if isinstance(self, objtype) and pattern == self.name:
+            l.append(self)
         for obj in self.body:
-            if isinstance(obj, Module):
-                l.extend(obj.match_content(objtype, pattern))
-            if isinstance(obj, objtype):
-                l.extend(obj.match(pattern))
+                l.extend(obj.match(pattern, objtype))
         return l
 
 
 class CompositeType(JuliaModelNode):
     __fields__ = ("name", "templateparameters", "parenttype", "fields", "constructors", "docstring")
 
-    def match(self, pattern):
-        if pattern == self.name:
+    def match(self, pattern, objtype):
+        if isinstance(self, objtype) and pattern == self.name:
             return [self]
         else:
             return []
@@ -72,8 +70,8 @@ class CompositeType(JuliaModelNode):
 class AbstractType(JuliaModelNode):
     __fields__ = ("name", "templateparameters", "parenttype", "docstring")
 
-    def match(self, pattern):
-        if pattern == self.name:
+    def match(self, pattern, objtype):
+        if isinstance(self, objtype) and pattern == self.name:
             return [self]
         else:
             return []
@@ -82,9 +80,9 @@ class AbstractType(JuliaModelNode):
 class Function(JuliaModelNode):
     __fields__ = ("name", "modulename", "templateparameters", "signature", "docstring")
 
-    def match(self, pattern):
+    def match(self, pattern, objtype):
         namepattern, *signaturepattern = pattern.split("(")
-        if namepattern == self.name:
+        if isinstance(self, objtype) and pattern == self.name:
             return [self]
         else:
             return []
