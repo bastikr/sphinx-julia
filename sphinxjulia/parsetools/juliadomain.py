@@ -4,9 +4,10 @@ import model
 import modelparser
 
 from docutils.parsers.rst import Directive, directives
+from docutils import nodes
+
 import sphinx
 import sphinx.domains
-from sphinx import addnodes
 
 
 class JuliaDirective(Directive):
@@ -14,9 +15,6 @@ class JuliaDirective(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
-        'noindex': directives.flag,
-    }
 
     def parse(self):
         return []
@@ -27,11 +25,10 @@ class JuliaDirective(Directive):
         else:
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
-        self.indexnode = addnodes.index(entries=[])
-        contentnode = addnodes.desc_content()
+        contentnode = nodes.paragraph()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
         m = self.parse(contentnode)
-        m.children = contentnode
+        m.extend(contentnode)
         return [m]
 
 
