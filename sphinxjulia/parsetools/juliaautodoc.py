@@ -13,7 +13,11 @@ class AutoFileDirective(Directive):
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
         module = self.env.juliaparser.parsefile(sourcepath)
-        return module.create_nodes(self)
+        m = module.create_node(self)
+        if module.name == "": # No top-level module in the file
+            return m.children
+        else:
+            return [m]
 
 
 class AutoFunctionDirective(Directive):

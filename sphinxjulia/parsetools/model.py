@@ -10,29 +10,22 @@ class JuliaModel:
     def __init__(self, **kwargs):
         for fieldname in self.__fields__:
             setattr(self, fieldname, kwargs.pop(fieldname))
-
         assert len(kwargs) == 0
 
 
-class JuliaModelNode(JuliaModel, nodes.Admonition, nodes.Element):
+class JuliaModelNode(JuliaModel, nodes.Element):
 
     def __init__(self, **kwargs):
         JuliaModel.__init__(self, **kwargs)
-        nodes.Admonition.__init__(self)
         nodes.Element.__init__(self)
 
     def subnodes(self, directive):
         return []
 
-    def create_nodes(self, directive):
-        # self.children = sphinx.addnodes.desc_content()
-        # self.children += self.parsedocstring(directive)
-        self.children = [self.parsedocstring(directive)]
-        subnodes = self.subnodes(directive)
-        for node in subnodes:
-            self.children.append(node.create_nodes(directive))
-        # self.children = [self.parsedocstring(directive), *subnodes]
-        return [self]
+    def create_node(self, directive):
+        self.append(self.parsedocstring(directive))
+        self.extend(self.subnodes(directive))
+        return self
 
     def parsedocstring(self, directive):
         classname = self.__class__.__name__
@@ -40,20 +33,19 @@ class JuliaModelNode(JuliaModel, nodes.Admonition, nodes.Element):
         directive.env.app.emit('autodoc-process-docstring',
                                classname, self.name, None, {}, docstringlines)
         content = ViewList(docstringlines)
-        docstringnode = sphinx.addnodes.desc_content()
+        docstringnode = nodes.paragraph()
         directive.state.nested_parse(content, directive.content_offset,
                                      docstringnode)
         return docstringnode
 
 
 class Module(JuliaModelNode):
-    orderedobjects = None
     __fields__ = ("name", "body", "docstring")
 
     def subnodes(self, directive):
         l = []
         for n in self.body:
-            l.extend(n.create_nodes(directive))
+            l.append(n.create_node(directive))
         return l
 
     def match_content(self, objtype, pattern):
