@@ -32,7 +32,9 @@ sys.path.insert(0, os.path.abspath('../../sphinxjulia/parsetools/'))
 # ones.
 extensions = [
     'juliadomain',
-    'sphinx.ext.mathjax'
+    'juliaautodoc',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
 ]
 
 

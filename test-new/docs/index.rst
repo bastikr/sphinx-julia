@@ -16,7 +16,14 @@ Welcome to autodoc-julia's documentation!
 
     Python function decstring
 
+.. jl:autotype:: ../src/DormandPrince45.jl CType
 
+.. jl:autoabstract:: ../src/DormandPrince45.jl AType
+
+.. jl:autofunction:: ../src/DormandPrince45.jl ode
+
+
+.. jl:autofile:: ../src/DormandPrince45.jl
 
 
 .. jl:module:: MyModule
@@ -31,6 +38,6 @@ Welcome to autodoc-julia's documentation!
 
         My type docstring
 
-.. jl:abstracttype:: MyAbstractType
+.. jl:abstract:: MyAbstractType
 
     MyAbstract type docstring

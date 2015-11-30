@@ -1,3 +1,11 @@
+"""
+My module.
+
+Arguments
+---------
+y
+    :math:`a^2 + b^2`
+"""
 module DormandPrince45
 
 export ode, ode_event
@@ -22,6 +30,21 @@ const bs = Float64[5179/57600, 0., 7571/16695, 393/640, -92097/339200, 187/2100,
 
 # Nodes
 const c = Float64[0., 1/5, 3/10, 4/5, 8/9, 1., 1.]
+
+
+"""
+Abstract tasfjsdlökgjfdagjöl
+"""
+abstract AType
+
+
+"""
+Composite type sdflkögsanva
+"""
+type CType
+    x = 1,
+    y::Int
+end
 
 # Interpolation helper functions
 b7(θ) = (θ^2*(θ-1) + θ^2*(θ-1)^2*10*(7414447 - 829305*θ)/29380423)
