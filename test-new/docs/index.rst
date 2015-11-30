@@ -9,7 +9,7 @@ Welcome to autodoc-julia's documentation!
 
     .. py:method:: meth(a)
 
-        more text
+        more text :math:`a^2 + b^2 = c^2`
 
 
 .. py:function:: fpython(a, b, c)
@@ -25,7 +25,7 @@ Welcome to autodoc-julia's documentation!
 
     .. jl:function:: f{T}(x::T,y)
 
-        Test faslfjsaldf
+        Test faslfjsaldf :math:`a^2 + b^2 = c^2`
 
     .. jl:type:: MyType
 

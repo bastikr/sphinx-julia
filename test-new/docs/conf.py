@@ -31,7 +31,8 @@ sys.path.insert(0, os.path.abspath('../../sphinxjulia/parsetools/'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'juliadomain'
+    'juliadomain',
+    'sphinx.ext.mathjax'
 ]
 
 
