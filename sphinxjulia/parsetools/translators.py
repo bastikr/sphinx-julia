@@ -71,9 +71,10 @@ def handle_signature(signature):
         else:
             first = False
         l.append(handle_argument(arg))
-    if signature.optionalarguments:
+    if signature.keywordarguments:
         l.append(";")
-    for arg in signature.optionalarguments:
+    first = True
+    for arg in signature.keywordarguments:
         if not first:
             l.append(", ")
         else:
