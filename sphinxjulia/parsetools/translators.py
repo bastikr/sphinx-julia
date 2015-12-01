@@ -1,9 +1,6 @@
-import model
-
-nodes = ["Module", "CompositeType", "AbstractType", "Function"]
 
 
-def handle_signature(signature):
+def format_signature(signature):
     arguments = signature.positionalarguments + signature.optionalarguments
     first = True
     l = []
@@ -12,7 +9,7 @@ def handle_signature(signature):
             l.append(", ")
         else:
             first = False
-        l.append(handle_argument(arg))
+        l.append(format_argument(arg))
     if signature.keywordarguments:
         l.append(";")
     first = True
@@ -21,90 +18,79 @@ def handle_signature(signature):
             l.append(", ")
         else:
             first = False
-        l.append(handle_argument(arg))
+        l.append(format_argument(arg))
     return "".join(l)
 
 
-def handle_argument(argument):
+def format_argument(argument):
     return "<em>" + argument.name + "</em>"
 
 
-class HTML:
+def format_templateparameters(args):
+    if args:
+        return "{%s}" % ",".join(args)
+    else:
+        return ""
 
-    def visit_Module(self, node):
-        I = self.body.append
-        I('<dl class="module">')
-        I('<dt id={}>'.format(node["ids"][0]))
-        I('<em class="property">module </em>')
-        I('<code class="descname">')
-        I(node.name)
-        I('</code>')
-        self.add_permalink_ref(node, "Permalink to this module")
-        I('</dt><dd class="body">')
 
-    def depart_Module(self, node):
-        self.body.append("</dd></dl>")
+def format_parenttype(args):
+    if args:
+        return "<: " + args
+    else:
+        return ""
 
-    def visit_CompositeType(self, node):
-        if node.templateparameters:
-            tpars = "{%s}" % ",".join(node.templateparameters)
-        else:
-            tpars = ""
-        if node.parenttype:
-            parent = "<: " + node.parenttype
-        else:
-            parent = ""
-        I = self.body.append
-        I('<dl class="class">')
-        I('<dt id={}>'.format(node["ids"][0]))
-        I('<em class="property">type </em>')
-        I('<code class="descname">')
-        I(node.name + tpars + parent)
-        I('</code>')
-        self.add_permalink_ref(node, "Permalink to this composite type")
-        I('</dt><dd>')
 
-    def depart_CompositeType(self, node):
-        self.body.append("</dd></dl>")
+def visit_generic(translator, node, descriptor, signature):
+    I = translator.body.append
+    I('<dl class="class">')
+    I('<dt id=%s>' % node["ids"][0])
+    I('<em class="property">%s </em>' % descriptor)
+    I('<code class="descname">')
+    I(signature)
+    I('</code>')
+    translator.add_permalink_ref(node, "Permalink to this" + descriptor)
+    I('</dt><dd class="body">')
 
-    def visit_AbstractType(self, node):
-        if node.templateparameters:
-            tpars = "{%s}" % ",".join(node.templateparameters)
-        else:
-            tpars = ""
-        if node.parenttype:
-            parent = "<: " + node.parenttype
-        else:
-            parent = ""
-        I = self.body.append
-        I('<dl class="class">')
-        I('<dt id={}>'.format(node["ids"][0]))
-        I('<em class="property">abstract </em>')
-        I('<code class="descname">')
-        I(node.name + tpars + parent)
-        I('</code>')
-        self.add_permalink_ref(node, "Permalink to this abstract type")
-        I('</dt><dd>')
 
-    def depart_AbstractType(self, node):
-        self.body.append("</dd></dl>")
+def depart_generic(translator, node):
+    translator.body.append("</dd></dl>")
 
-    def visit_Function(self, node):
-        if node.templateparameters:
-            tpars = "{%s}" % ",".join(node.templateparameters)
-        else:
-            tpars = ""
-        signature = handle_signature(node.signature)
-        I = self.body.append
-        I('<dl class="function">')
-        I('<dt id="{}">'.format(node["ids"][0]))
-        I('<em class="property">function </em>')
-        I('<code class="descname">{}{}</code>'.format(node.name, tpars))
-        I('<span class="sig-paren">(</span>')
-        I(signature)
-        I('<span class="sig-paren">)</span>')
-        self.add_permalink_ref(node, "Permalink to this function")
-        I("</dt><dd>")
 
-    def depart_Function(self, node):
-        self.body.append('</dd></dl>')
+def visit_module(translator, node):
+    visit_generic(translator, node, "module", node.name)
+
+
+def visit_compositetype(translator, node):
+    tpars = format_templateparameters(node.templateparameters)
+    partype = format_parenttype(node.parenttype)
+    visit_generic(translator, node, "type", node.name + tpars + partype)
+
+
+def visit_abstracttype(translator, node):
+    tpars = format_templateparameters(node.templateparameters)
+    partype = format_parenttype(node.parenttype)
+    visit_generic(translator, node, "abstract", node.name + tpars + partype)
+
+
+def visit_function(translator, node):
+    tpars = format_templateparameters(node.templateparameters)
+    signature = format_signature(node.signature)
+    I = translator.body.append
+    I('<dl class="function">')
+    I('<dt id="%s">' % node["ids"][0])
+    I('<em class="property">function </em>')
+    I('<code class="descname">')
+    I(node.name + tpars)
+    I('</code>')
+    I('<span class="sig-paren">(</span>')
+    I(signature)
+    I('<span class="sig-paren">)</span>')
+    translator.add_permalink_ref(node, "Permalink to this function")
+    I("</dt><dd>")
+
+TranslatorFunctions = {
+    "Module": (visit_module, depart_generic),
+    "AbstractType": (visit_abstracttype, depart_generic),
+    "CompositeType": (visit_compositetype, depart_generic),
+    "Function":  (visit_function, depart_generic)
+}

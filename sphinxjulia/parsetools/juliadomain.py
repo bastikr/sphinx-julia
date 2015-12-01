@@ -5,6 +5,7 @@ import sphinx.domains
 
 import model
 import modelparser
+import translators
 
 
 class JuliaDirective(Directive):
@@ -119,7 +120,6 @@ def update_builder(app):
     #     _visit_desc_parameterlist(self, node)
     # translator.visit_desc_parameterlist = visit_desc_parameterlist
 
-import translators
 
 def setup(app):
     # app.add_config_value('julia_signature_show_qualifier', True, 'html')
@@ -127,12 +127,12 @@ def setup(app):
     # app.add_config_value('julia_signature_show_default', True, 'html')
     # app.add_config_value('julia_docstring_show_type', True, 'html')
 
-    for nodename in translators.nodes:
-        visit = getattr(translators.HTML, "visit_" + nodename)
-        depart = getattr(translators.HTML, "depart_" + nodename)
-        app.add_node(getattr(model, nodename),
-                html=(visit, depart)
-                )
+    for name in ["Module", "AbstractType", "CompositeType", "Function"]:
+        translator = translators.TranslatorFunctions[name]
+        modelclass = getattr(model, name)
+        app.add_node(modelclass,
+                     html=translator
+                     )
     # app.add_node(model.Module,
     #             #html=(visit_desc_keyparameter, depart_desc_keyparameter)
     #             )

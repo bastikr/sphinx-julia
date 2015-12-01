@@ -2,6 +2,24 @@
 Welcome to autodoc-julia's documentation!
 =========================================
 
+
+Pythondomain
+------------
+
+.. py:module:: A
+
+.. py:method:: B
+
+    Module B description.
+
+.. py:class:: t
+
+    Type t.
+
+    asdsdfdsf
+
+
+
 Juliadomain
 -----------
 
