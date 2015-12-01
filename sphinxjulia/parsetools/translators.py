@@ -2,24 +2,11 @@
 
 def format_signature(signature):
     arguments = signature.positionalarguments + signature.optionalarguments
-    first = True
-    l = []
-    for arg in arguments:
-        if not first:
-            l.append(", ")
-        else:
-            first = False
-        l.append(format_argument(arg))
-    if signature.keywordarguments:
-        l.append(";")
-    first = True
-    for arg in signature.keywordarguments:
-        if not first:
-            l.append(", ")
-        else:
-            first = False
-        l.append(format_argument(arg))
-    return "".join(l)
+    args = [format_argument(arg) for arg in arguments]
+    if not signature.keywordarguments:
+        return ", ".join(args)
+    kwargs = [format_argument(arg) for arg in signature.keywordarguments]
+    return ", ".join(args) + "; " + ", ".join(kwargs)
 
 
 def format_argument(argument):
