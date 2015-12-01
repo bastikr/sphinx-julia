@@ -22,10 +22,13 @@ class JuliaModelNode(JuliaModel, nodes.Element):
     def subnodes(self, directive):
         return []
 
-    def create_node(self, directive):
+    def create_nodes(self, directive):
         self.append(self.parsedocstring(directive))
         self.extend(self.subnodes(directive))
-        return self
+        target = nodes.target("", "", ids=[self.name])
+        if self.name == "":
+            return self.children
+        return [target, self]
 
     def parsedocstring(self, directive):
         classname = self.__class__.__name__
@@ -45,7 +48,7 @@ class Module(JuliaModelNode):
     def subnodes(self, directive):
         l = []
         for n in self.body:
-            l.append(n.create_node(directive))
+            l.extend(n.create_nodes(directive))
         return l
 
     def match(self, pattern, objtype):

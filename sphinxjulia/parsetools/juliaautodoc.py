@@ -16,7 +16,7 @@ class AutoDirective(Directive):
         objects = module.match(self.arguments[1], self.modelclass)
         nodes = []
         for obj in objects:
-            nodes.append(obj.create_node(self))
+            nodes.extend(obj.create_nodes(self))
         return nodes
 
 
@@ -30,11 +30,7 @@ class AutoFileDirective(Directive):
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
         module = self.env.juliaparser.parsefile(sourcepath)
-        m = module.create_node(self)
-        if module.name == "": # No top-level module in the file
-            return m.children
-        else:
-            return [m]
+        return module.create_nodes(self)
 
 
 class AutoModuleDirective(AutoDirective):
