@@ -2,64 +2,6 @@ import model
 
 nodes = ["Module", "CompositeType", "AbstractType", "Function"]
 
-templates = {
-    "AbstractType": [
-        '''
-        <dl class="class">
-          <dt>
-            <em class="property">abstract </em>
-            <code class="descname">{name}{tpars}{parent}</code>
-          </dt>
-          <dd>
-        ''',
-        '''
-          </dd>
-        </dl>
-        '''],
-    "CompositeType": [
-        '''
-        <dl class="class">
-          <dt>
-            <em class="property">type </em>
-            <code class="descname">{name}{tpars}{parent}</code>
-          </dt>
-          <dd>
-        ''',
-        '''
-          </dd>
-        </dl>
-        '''],
-    "Function": [
-        '''
-        <dl class="function">
-          <dt>
-            <em class="property">function </em>
-            <code class="descname">{name}{tpars}</code>
-            <span class="sig-paren">(</span>
-                {signature}
-            <span class="sig-paren">)</span>
-          </dt>
-          <dd>
-        ''',
-        '''
-          </dd>
-        </dl>
-        '''],
-    "Module": [
-        '''
-        <dl class="module">
-          <dt>
-            <em class="property">module </em>
-            <code class="descname">{name}</code>
-          </dt>
-          <dd class="body">
-        ''',
-        '''
-          </dd>
-        </dl>
-        ''']
-}
-
 
 def handle_signature(signature):
     arguments = signature.positionalarguments + signature.optionalarguments
@@ -90,36 +32,62 @@ def handle_argument(argument):
 class HTML:
 
     def visit_Module(self, node):
-        t = templates["Module"][0]
-        x = t.format(name=node.name)
-        self.body.append(x)
+        I = self.body.append
+        I('<dl class="module">')
+        I('<dt id={}>'.format(node["ids"][0]))
+        I('<em class="property">module </em>')
+        I('<code class="descname">')
+        I(node.name)
+        I('</code>')
+        self.add_permalink_ref(node, "Permalink to this module")
+        I('</dt><dd class="body">')
 
     def depart_Module(self, node):
-        self.body.append(templates["Module"][1])
+        self.body.append("</dd></dl>")
 
     def visit_CompositeType(self, node):
         if node.templateparameters:
             tpars = "{%s}" % ",".join(node.templateparameters)
         else:
             tpars = ""
-        t = templates["CompositeType"][0]
-        x = t.format(name=node.name, tpars=tpars, parent=node.parenttype)
-        self.body.append(x)
+        if node.parenttype:
+            parent = "<: " + node.parenttype
+        else:
+            parent = ""
+        I = self.body.append
+        I('<dl class="class">')
+        I('<dt id={}>'.format(node["ids"][0]))
+        I('<em class="property">type </em>')
+        I('<code class="descname">')
+        I(node.name + tpars + parent)
+        I('</code>')
+        self.add_permalink_ref(node, "Permalink to this composite type")
+        I('</dt><dd>')
 
     def depart_CompositeType(self, node):
-        self.body.append(templates["CompositeType"][1])
+        self.body.append("</dd></dl>")
 
     def visit_AbstractType(self, node):
         if node.templateparameters:
             tpars = "{%s}" % ",".join(node.templateparameters)
         else:
             tpars = ""
-        t = templates["AbstractType"][0]
-        x = t.format(name=node.name, tpars=tpars, parent=node.parenttype)
-        self.body.append(x)
+        if node.parenttype:
+            parent = "<: " + node.parenttype
+        else:
+            parent = ""
+        I = self.body.append
+        I('<dl class="class">')
+        I('<dt id={}>'.format(node["ids"][0]))
+        I('<em class="property">abstract </em>')
+        I('<code class="descname">')
+        I(node.name + tpars + parent)
+        I('</code>')
+        self.add_permalink_ref(node, "Permalink to this abstract type")
+        I('</dt><dd>')
 
     def depart_AbstractType(self, node):
-        self.body.append(templates["AbstractType"][1])
+        self.body.append("</dd></dl>")
 
     def visit_Function(self, node):
         if node.templateparameters:
@@ -127,9 +95,16 @@ class HTML:
         else:
             tpars = ""
         signature = handle_signature(node.signature)
-        t = templates["Function"][0]
-        x = t.format(name=node.name, tpars=tpars, signature=signature)
-        self.body.append(x)
+        I = self.body.append
+        I('<dl class="function">')
+        I('<dt id="{}">'.format(node["ids"][0]))
+        I('<em class="property">function </em>')
+        I('<code class="descname">{}{}</code>'.format(node.name, tpars))
+        I('<span class="sig-paren">(</span>')
+        I(signature)
+        I('<span class="sig-paren">)</span>')
+        self.add_permalink_ref(node, "Permalink to this function")
+        I("</dt><dd>")
 
     def depart_Function(self, node):
-        self.body.append(templates["Function"][1])
+        self.body.append('</dd></dl>')

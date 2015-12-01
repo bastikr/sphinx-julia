@@ -18,23 +18,24 @@ class JuliaModelNode(JuliaModel, nodes.Element):
     def __init__(self, **kwargs):
         JuliaModel.__init__(self, **kwargs)
         nodes.Element.__init__(self)
+        self["ids"] = [self.name]
 
-    def subnodes(self, directive):
+    def subnodes(self, directive, namespace=[]):
         return []
 
-    def create_nodes(self, directive):
-        self.append(self.parsedocstring(directive))
-        self.extend(self.subnodes(directive))
-        target = nodes.target("", "", ids=[self.name])
+    def create_nodes(self, directive, namespace=[]):
+        innernamespace = namespace + [self.name]
+        self.append(self.parsedocstring(directive, innernamespace))
+        self.extend(self.subnodes(directive, innernamespace))
+        target = nodes.target("", "", ids=[".".join(innernamespace)])
         if self.name == "":
             return self.children
         return [target, self]
 
-    def parsedocstring(self, directive):
-        classname = self.__class__.__name__
+    def parsedocstring(self, directive, namespace=[]):
         docstringlines = self.docstring.split("\n")
         directive.env.app.emit('autodoc-process-docstring',
-                               classname, self.name, None, {}, docstringlines)
+                               namespace, self.name, None, {}, docstringlines)
         content = ViewList(docstringlines)
         docstringnode = nodes.paragraph()
         directive.state.nested_parse(content, directive.content_offset,
@@ -45,10 +46,11 @@ class JuliaModelNode(JuliaModel, nodes.Element):
 class Module(JuliaModelNode):
     __fields__ = ("name", "body", "docstring")
 
-    def subnodes(self, directive):
+    def subnodes(self, directive, namespace=[]):
+        namespace.append(self.name)
         l = []
         for n in self.body:
-            l.extend(n.create_nodes(directive))
+            l.extend(n.create_nodes(directive, namespace=namespace))
         return l
 
     def match(self, pattern, objtype):
