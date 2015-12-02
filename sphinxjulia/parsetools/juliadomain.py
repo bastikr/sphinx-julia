@@ -2,6 +2,9 @@ from docutils import nodes
 from docutils.parsers.rst import Directive
 
 import sphinx.domains
+from sphinx import addnodes
+from sphinx.roles import XRefRole
+from sphinx.util.nodes import make_refnode
 
 import model
 import modelparser
@@ -66,6 +69,43 @@ class CompositeTypeDirective(JuliaDirective):
         return m
 
 
+def resolve_module(typ, rawtext, text, lineno, inliner,
+                 options={}, content=[]):
+    print()
+    print("typ: ", typ)
+    print("rawtext: ", rawtext)
+    print("text: ", text)
+    print("lineno: ", lineno)
+    print("inliner: ", inliner)
+    print("options: ", options)
+    print("content: ", content)
+    refnode = addnodes.pending_xref(rawtext, reftype=typ, refdomain="jl")
+    refnode['reftarget'] = text
+    refnode += nodes.literal(rawtext, text, classes=["xref", text])
+    return [refnode], []
+
+
+class JuliaXRefRole(XRefRole):
+    def process_link(self, env, refnode, has_explicit_title, title, target):
+        refnode['jl:context'] = env.ref_context.get('jl:context')
+        if not has_explicit_title:
+            title = title.lstrip('.')    # only has a meaning for the target
+            target = target.lstrip('~')  # only has a meaning for the title
+            # if the first character is a tilde, don't display the module/class
+            # parts of the contents
+            if title[0:1] == '~':
+                title = title[1:]
+                dot = title.rfind('.')
+                if dot != -1:
+                    title = title[dot+1:]
+        # if the first character is a dot, search more specific namespaces first
+        # else search builtins first
+        if target[0:1] == '.':
+            target = target[1:]
+            refnode['refspecific'] = True
+        return title, target
+
+
 class JuliaDomain(sphinx.domains.Domain):
     """
     Julia language domain.
@@ -90,13 +130,13 @@ class JuliaDomain(sphinx.domains.Domain):
     }
 
     roles = {
-        # 'func':   JuliaXRefRole(fix_parens=False),
+        'func':   JuliaXRefRole(fix_parens=False),
         # 'global': JuliaXRefRole(),
-        # 'class':  JuliaXRefRole(),
+        'type':  JuliaXRefRole(),
         # 'exc':    JuliaXRefRole(),
         # 'attr':   JuliaXRefRole(),
         # 'const':  JuliaXRefRole(),
-        # 'mod':    JuliaXRefRole(),
+        'mod':    JuliaXRefRole(),
         # 'obj':    JuliaXRefRole(),
     }
 
@@ -107,6 +147,34 @@ class JuliaDomain(sphinx.domains.Domain):
     indices = [
         # JuliaModuleIndex,
     ]
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+        node = nodes.reference('', '', internal=True)
+        node['refid'] = target
+        node['reftitle'] = target
+        node += contnode
+        return node
+
+        context = node.get('jl:context')
+        searchmode = node.hasattr('refspecific') and 1 or 0
+        matches = self.find_obj(env, modname, clsname, target,
+                                type, searchmode)
+        if not matches:
+            return None
+        elif len(matches) > 1:
+            env.warn_node(
+                'more than one target found for cross-reference '
+                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
+                node)
+        name, obj = matches[0]
+
+        if obj[1] == 'module':
+            return self._make_module_refnode(builder, fromdocname, name,
+                                             contnode)
+        else:
+            return make_refnode(builder, fromdocname, obj[0], name,
+                                contnode, name)
 
 
 def update_builder(app):
