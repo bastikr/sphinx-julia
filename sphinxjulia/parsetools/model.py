@@ -27,10 +27,9 @@ class JuliaModelNode(JuliaModel, nodes.Element):
         innernamespace = namespace + [self.name]
         self.append(self.parsedocstring(directive, innernamespace))
         self.extend(self.subnodes(directive, innernamespace))
-        target = nodes.target("", "", ids=[".".join(innernamespace)])
         if self.name == "":
             return self.children
-        return [target, self]
+        return [self]
 
     def parsedocstring(self, directive, namespace=[]):
         docstringlines = self.docstring.split("\n")
