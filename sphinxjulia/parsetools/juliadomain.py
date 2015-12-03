@@ -32,8 +32,9 @@ class JuliaDirective(Directive):
         self.env = self.state.document.settings.env
         modelnode = self.parse_arguments()
         modelnode.setid(self)
+        modelnode.register(self.env)
         self.parse_content(modelnode)
-        self.env.domaindata['jl'][type(modelnode)].append(modelnode)
+        #self.env.domaindata['jl'][type(modelnode)].append(modelnode)
         return [modelnode]
 
 
@@ -123,16 +124,30 @@ class JuliaDomain(Domain):
     }
 
     initial_data = {
-        model.Module: [],
-        model.Function: [],
-        model.AbstractType: [],
-        model.CompositeType: []
+        "module": {}, # uid -> docname
+        "function": {}, # (docname, FunctionNode)
+        "abstract": {}, # uid -> docname
+        "type": {} # uid -> docname
         # 'objects': {},  # fullname -> docname, objtype
         # 'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
     indices = [
         # JuliaModuleIndex,
     ]
+
+    def find_obj(self, refname, target):
+        print(refname)
+        print(target)
+        for typename, objtype in self.object_types.items():
+            if refname in objtype.roles:
+                break
+        else:
+            return []
+        print("data", self.initial_data)
+        if target in self.initial_data[typename]:
+            return [(target, self.initial_data[typename][target])]
+        return []
+
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
@@ -142,10 +157,15 @@ class JuliaDomain(Domain):
         # node += contnode
         # return node
 
-        scope = node.get('jl:scope')
-        # searchmode = node.hasattr('refspecific') and 1 or 0
-        matches = self.find_obj(env, modname, clsname, target,
-                                type, searchmode)
+        # print('env:' + str(env))
+        # print('fromdocname:' + str(fromdocname))
+        # print('builder:' + str(builder))
+        # print('typ:' + str(typ))
+        # print('target:' + str(target))
+        # print('node:' + str(node))
+        # print('contnode:' + str(contnode))
+        # assert False
+        matches = self.find_obj(typ, target)
         if not matches:
             return None
         elif len(matches) > 1:
@@ -153,14 +173,11 @@ class JuliaDomain(Domain):
                 'more than one target found for cross-reference '
                 '%r: %s' % (target, ', '.join(match[0] for match in matches)),
                 node)
-        name, obj = matches[0]
-
-        if obj[1] == 'module':
-            return self._make_module_refnode(builder, fromdocname, name,
-                                             contnode)
-        else:
-            return make_refnode(builder, fromdocname, obj[0], name,
-                                contnode, name)
+        name, todocname = matches[0]
+        return make_refnode(builder, fromdocname, todocname, target,
+                                contnode, target)
+        # return make_refnode(builder, fromdocname, obj[0], name,
+        #                         contnode, name)
 
 
 def update_builder(app):
@@ -188,17 +205,5 @@ def setup(app):
         app.add_node(modelclass,
                      html=translator
                      )
-    # app.add_node(model.Module,
-    #             #html=(visit_desc_keyparameter, depart_desc_keyparameter)
-    #             )
-    # app.add_node(model.Function,
-    #             #html=(visit_desc_keyparameter, depart_desc_keyparameter)
-    #             )
-    # app.add_node(model.AbstractType,
-    #             # html=(visit_desc_keyparameter, depart_desc_keyparameter)
-    #             )
-    # app.add_node(model.CompositeType,
-    #             # html=(visit_desc_keyparameter, depart_desc_keyparameter)
-    #             )
     app.connect('builder-inited', update_builder)
     app.add_domain(JuliaDomain)

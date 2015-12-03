@@ -27,8 +27,12 @@ class JuliaModelNode(JuliaModel, nodes.Element):
         else:
             self["ids"] = [self.name]
 
+    def register(self, env):
+        env.domaindata['jl'][self.typeidentifier][self["ids"][0]] = env.docname
+
     def create_nodes(self, directive):
         self.setid(directive)
+        self.register(directive.env)
         self.append(self.parsedocstring(directive))
         return [self]
 
@@ -44,6 +48,7 @@ class JuliaModelNode(JuliaModel, nodes.Element):
 
 
 class Module(JuliaModelNode):
+    typeidentifier = "module"
     __fields__ = ("name", "body", "docstring")
 
     def create_nodes(self, directive):
@@ -56,6 +61,7 @@ class Module(JuliaModelNode):
             return self.children
         # Normal module
         self.setid(directive)
+        self.register(directive.env)
         scope = directive.env.ref_context['jl:scope']
         scope.append(self.name)
         self.append(self.parsedocstring(directive))
@@ -74,6 +80,7 @@ class Module(JuliaModelNode):
 
 
 class CompositeType(JuliaModelNode):
+    typeidentifier = "type"
     __fields__ = ("name", "templateparameters", "parenttype", "fields", "constructors", "docstring")
 
     def match(self, pattern, objtype):
@@ -84,6 +91,7 @@ class CompositeType(JuliaModelNode):
 
 
 class AbstractType(JuliaModelNode):
+    typeidentifier = "abstract"
     __fields__ = ("name", "templateparameters", "parenttype", "docstring")
 
     def match(self, pattern, objtype):
@@ -94,6 +102,7 @@ class AbstractType(JuliaModelNode):
 
 
 class Function(JuliaModelNode):
+    typeidentifier = "function"
     __fields__ = ("name", "modulename", "templateparameters", "signature", "docstring")
     hashfunc = hashlib.md5()
 
@@ -106,6 +115,10 @@ class Function(JuliaModelNode):
             self["ids"] = [".".join(scope) + "." + name]
         else:
             self["ids"] = [name]
+
+    def register(self, env):
+        pass
+        #env.domaindata['jl'][type(self)][self.name] = (env.docname, self)
 
     def match(self, pattern, objtype):
         namepattern, *signaturepattern = pattern.split("(")
