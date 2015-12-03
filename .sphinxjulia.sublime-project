@@ -1,0 +1,31 @@
+{
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "python -u \"$file\""
+		},
+		{
+			"name": "Make sphinx",
+			"selector": "source.rst",
+			// "working_dir": "$file_path",
+			"working_dir": "${project_path}/test-new/docs/",
+			"cmd": ["ls"],
+			"variants": [
+				{
+					"name": "Rebuild",
+					"cmd": ["make", "clean", "html"],
+				}
+			]
+			// "shell_cmd": "make html"
+		}
+	],
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	]
+}
