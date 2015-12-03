@@ -18,8 +18,11 @@ class JuliaDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = True
 
-    def parse(self):
-        return []
+    def parse_arguments(self):
+        raise NotImplementedError()
+
+    def parse_content(self, modelnode):
+        self.state.nested_parse(self.content, self.content_offset, modelnode)
 
     def run(self):
         if ':' in self.name:
@@ -27,25 +30,28 @@ class JuliaDirective(Directive):
         else:
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
-        modelnode = self.parse()
+        modelnode = self.parse_arguments()
+        self.parse_content(modelnode)
         self.env.domaindata['jl'][type(modelnode)].append(modelnode)
-        self.env.ref_context['jl:scope'].append(modelnode.name)
-        self.state.nested_parse(self.content, self.content_offset, modelnode)
-        self.env.ref_context['jl:scope'].pop()
         return [modelnode]
 
 
 class ModuleDirective(JuliaDirective):
 
-    def parse(self):
+    def parse_arguments(self):
         text = "module " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("module", text)
         return m
 
+    def parse_content(self, modelnode):
+        self.env.ref_context['jl:scope'].append(modelnode.name)
+        JuliaDirective.parse_content(self, modelnode)
+        self.env.ref_context['jl:scope'].pop()
+
 
 class FunctionDirective(JuliaDirective):
 
-    def parse(self):
+    def parse_arguments(self):
         text = "function " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("function", text)
         return m
@@ -53,7 +59,7 @@ class FunctionDirective(JuliaDirective):
 
 class AbstractTypeDirective(JuliaDirective):
 
-    def parse(self):
+    def parse_arguments(self):
         text = "abstract " + self.arguments[0]
         m = self.env.juliaparser.parsestring("abstracttype", text)
         return m
@@ -61,7 +67,7 @@ class AbstractTypeDirective(JuliaDirective):
 
 class CompositeTypeDirective(JuliaDirective):
 
-    def parse(self):
+    def parse_arguments(self):
         text = "type " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("compositetype", text)
         return m
@@ -116,10 +122,10 @@ class JuliaDomain(Domain):
     }
 
     initial_data = {
-        model.Module: {},
-        model.Function: {},
-        model.AbstractType: {},
-        model.CompositeType: {}
+        model.Module: [],
+        model.Function: [],
+        model.AbstractType: [],
+        model.CompositeType: []
         # 'objects': {},  # fullname -> docname, objtype
         # 'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
