@@ -1,6 +1,7 @@
 from docutils import nodes
 from docutils.statemachine import ViewList
 
+import hashlib
 import sphinx
 
 
@@ -94,6 +95,17 @@ class AbstractType(JuliaModelNode):
 
 class Function(JuliaModelNode):
     __fields__ = ("name", "modulename", "templateparameters", "signature", "docstring")
+    hashfunc = hashlib.md5()
+
+    def setid(self, directive):
+        scope = directive.env.ref_context['jl:scope']
+        x = bytes(str(self.templateparameters) + str(self.signature), "UTF-16")
+        self.hashfunc.update(x)
+        name = self.name + "-" + self.hashfunc.hexdigest()
+        if scope:
+            self["ids"] = [".".join(scope) + "." + name]
+        else:
+            self["ids"] = [name]
 
     def match(self, pattern, objtype):
         namepattern, *signaturepattern = pattern.split("(")
