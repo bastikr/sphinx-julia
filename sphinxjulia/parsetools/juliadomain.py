@@ -1,8 +1,9 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
-import sphinx.domains
 from sphinx import addnodes
+from sphinx.locale import l_, _
+from sphinx.domains import Domain, ObjType
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 
@@ -26,28 +27,25 @@ class JuliaDirective(Directive):
         else:
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
-        contentnode = nodes.paragraph()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
-        m = self.parse(contentnode)
-        m.extend(contentnode)
-        return [m]
+        modelnode = self.parse()
+        self.env.domaindata['jl'][type(modelnode)].append(modelnode)
+        self.env.ref_context['jl:scope'].append(modelnode.name)
+        self.state.nested_parse(self.content, self.content_offset, modelnode)
+        self.env.ref_context['jl:scope'].pop()
+        return [modelnode]
 
 
 class ModuleDirective(JuliaDirective):
 
-    def parse(self, contentnode):
+    def parse(self):
         text = "module " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("module", text)
-        for node in contentnode:
-            if isinstance(node, (model.AbstractType, model.CompositeType,
-                                 model.Function, model.Module)):
-                m.body.append(node)
         return m
 
 
 class FunctionDirective(JuliaDirective):
 
-    def parse(self, contentnode):
+    def parse(self):
         text = "function " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("function", text)
         return m
@@ -55,7 +53,7 @@ class FunctionDirective(JuliaDirective):
 
 class AbstractTypeDirective(JuliaDirective):
 
-    def parse(self, contentnode):
+    def parse(self):
         text = "abstract " + self.arguments[0]
         m = self.env.juliaparser.parsestring("abstracttype", text)
         return m
@@ -63,31 +61,15 @@ class AbstractTypeDirective(JuliaDirective):
 
 class CompositeTypeDirective(JuliaDirective):
 
-    def parse(self, contentnode):
+    def parse(self):
         text = "type " + self.arguments[0] + "\nend"
         m = self.env.juliaparser.parsestring("compositetype", text)
         return m
 
 
-def resolve_module(typ, rawtext, text, lineno, inliner,
-                 options={}, content=[]):
-    print()
-    print("typ: ", typ)
-    print("rawtext: ", rawtext)
-    print("text: ", text)
-    print("lineno: ", lineno)
-    print("inliner: ", inliner)
-    print("options: ", options)
-    print("content: ", content)
-    refnode = addnodes.pending_xref(rawtext, reftype=typ, refdomain="jl")
-    refnode['reftarget'] = text
-    refnode += nodes.literal(rawtext, text, classes=["xref", text])
-    return [refnode], []
-
-
 class JuliaXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        refnode['jl:context'] = env.ref_context.get('jl:context')
+        refnode['jl:scope'] = env.ref_context['jl:scope'].copy()
         if not has_explicit_title:
             title = title.lstrip('.')    # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title
@@ -106,43 +88,40 @@ class JuliaXRefRole(XRefRole):
         return title, target
 
 
-class JuliaDomain(sphinx.domains.Domain):
+class JuliaDomain(Domain):
     """
     Julia language domain.
     """
     name = 'jl'
     label = 'Julia'
     object_types = {
-        # 'function': sphinx.domains.ObjType(l_('function'), 'func', 'obj'),
-        # 'global':          ObjType(l_('global variable'),  'global', 'obj'),
-        # 'class':            ObjType(l_('class'),            'class', 'obj'),
-        # 'exception':       ObjType(l_('exception'),        'exc', 'obj'),
-        # 'attribute':       ObjType(l_('attribute'),        'attr', 'obj'),
-        # 'const':           ObjType(l_('const'),            'const', 'obj'),
-        # 'module':          ObjType(l_('module'),           'mod', 'obj'),
+        'function': ObjType(l_('function'), 'func'),
+        'type': ObjType(l_('type'), 'type'),
+        'abstract': ObjType(l_('abstract'), 'abstract'),
+        'module': ObjType(l_('module'), 'mod'),
     }
 
     directives = {
-        'function':         FunctionDirective,
-        'abstract':     AbstractTypeDirective,
-        'type':             CompositeTypeDirective,
-        'module':           ModuleDirective,
+        'function': FunctionDirective,
+        'abstract': AbstractTypeDirective,
+        'type': CompositeTypeDirective,
+        'module': ModuleDirective,
     }
 
     roles = {
-        'func':   JuliaXRefRole(fix_parens=False),
-        # 'global': JuliaXRefRole(),
+        'func': JuliaXRefRole(fix_parens=False),
         'type':  JuliaXRefRole(),
-        # 'exc':    JuliaXRefRole(),
-        # 'attr':   JuliaXRefRole(),
-        # 'const':  JuliaXRefRole(),
+        'abstract': JuliaXRefRole(),
         'mod':    JuliaXRefRole(),
-        # 'obj':    JuliaXRefRole(),
     }
 
     initial_data = {
-        'objects': {},  # fullname -> docname, objtype
-        'modules': {},  # modname -> docname, synopsis, platform, deprecated
+        model.Module: {},
+        model.Function: {},
+        model.AbstractType: {},
+        model.CompositeType: {}
+        # 'objects': {},  # fullname -> docname, objtype
+        # 'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
     indices = [
         # JuliaModuleIndex,
@@ -150,14 +129,14 @@ class JuliaDomain(sphinx.domains.Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        node = nodes.reference('', '', internal=True)
-        node['refid'] = target
-        node['reftitle'] = target
-        node += contnode
-        return node
+        # node = nodes.reference('', '', internal=True)
+        # node['refid'] = target
+        # node['reftitle'] = target
+        # node += contnode
+        # return node
 
-        context = node.get('jl:context')
-        searchmode = node.hasattr('refspecific') and 1 or 0
+        scope = node.get('jl:scope')
+        # searchmode = node.hasattr('refspecific') and 1 or 0
         matches = self.find_obj(env, modname, clsname, target,
                                 type, searchmode)
         if not matches:
@@ -180,6 +159,7 @@ class JuliaDomain(sphinx.domains.Domain):
 def update_builder(app):
     #app.warn(str(parser))
     app.env.juliaparser = modelparser.JuliaParser()
+    app.env.ref_context["jl:scope"] = []
     # translator = app.builder.translator_class
     # translator.first_kwordparam = True
     # _visit_desc_parameterlist = translator.visit_desc_parameterlist
