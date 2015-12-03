@@ -31,6 +31,7 @@ class JuliaDirective(Directive):
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
         modelnode = self.parse_arguments()
+        modelnode.setid(self)
         self.parse_content(modelnode)
         self.env.domaindata['jl'][type(modelnode)].append(modelnode)
         return [modelnode]

@@ -18,23 +18,23 @@ class JuliaModelNode(JuliaModel, nodes.Element):
     def __init__(self, **kwargs):
         JuliaModel.__init__(self, **kwargs)
         nodes.Element.__init__(self)
-        self["ids"] = [self.name]
 
-    def subnodes(self, directive, namespace=[]):
-        return []
+    def setid(self, directive):
+        scope = directive.env.ref_context['jl:scope']
+        if scope:
+            self["ids"] = [".".join(scope) + "." + self.name]
+        else:
+            self["ids"] = [self.name]
 
-    def create_nodes(self, directive, namespace=[]):
-        innernamespace = namespace + [self.name]
-        self.append(self.parsedocstring(directive, innernamespace))
-        self.extend(self.subnodes(directive, innernamespace))
-        if self.name == "":
-            return self.children
+    def create_nodes(self, directive):
+        self.setid(directive)
+        self.append(self.parsedocstring(directive))
         return [self]
 
-    def parsedocstring(self, directive, namespace=[]):
+    def parsedocstring(self, directive):
         docstringlines = self.docstring.split("\n")
         directive.env.app.emit('autodoc-process-docstring',
-                               namespace, self.name, None, {}, docstringlines)
+                               'class', self["ids"][0], self, {}, docstringlines)
         content = ViewList(docstringlines)
         docstringnode = nodes.paragraph()
         directive.state.nested_parse(content, directive.content_offset,
@@ -45,12 +45,23 @@ class JuliaModelNode(JuliaModel, nodes.Element):
 class Module(JuliaModelNode):
     __fields__ = ("name", "body", "docstring")
 
-    def subnodes(self, directive, namespace=[]):
-        namespace.append(self.name)
-        l = []
+    def create_nodes(self, directive):
+        # Unnamed module (parsed file without toplevel module)
+        if self.name == "":
+            self["ids"] = [""]
+            self.append(self.parsedocstring(directive))
+            for n in self.body:
+                self.extend(n.create_nodes(directive))
+            return self.children
+        # Normal module
+        self.setid(directive)
+        scope = directive.env.ref_context['jl:scope']
+        scope.append(self.name)
+        self.append(self.parsedocstring(directive))
         for n in self.body:
-            l.extend(n.create_nodes(directive, namespace=namespace))
-        return l
+            self.extend(n.create_nodes(directive))
+        scope.pop()
+        return [self]
 
     def match(self, pattern, objtype):
         l = []
