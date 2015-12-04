@@ -28,7 +28,18 @@ class JuliaModelNode(JuliaModel, nodes.Element):
             self["ids"] = [self.name]
 
     def register(self, env):
-        env.domaindata['jl'][self.typeidentifier][self["ids"][0]] = env.docname
+        d = env.domaindata['jl'][self.typeidentifier]
+        if self.name in d:
+            entries = d[self.name]
+        else:
+            entries = []
+            d[self.name] = entries
+        entry = {
+            "docname": env.docname,
+            "scope": env.ref_context['jl:scope'].copy(),
+            "uid": self["ids"][0]
+        }
+        entries.append(entry)
 
     def create_nodes(self, directive):
         self.setid(directive)

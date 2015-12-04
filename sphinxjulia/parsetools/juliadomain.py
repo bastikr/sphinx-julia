@@ -88,11 +88,6 @@ class JuliaXRefRole(XRefRole):
                 dot = title.rfind('.')
                 if dot != -1:
                     title = title[dot+1:]
-        # if the first character is a dot, search more specific namespaces first
-        # else search builtins first
-        if target[0:1] == '.':
-            target = target[1:]
-            refnode['refspecific'] = True
         return title, target
 
 
@@ -124,48 +119,51 @@ class JuliaDomain(Domain):
     }
 
     initial_data = {
-        "module": {}, # uid -> docname
-        "function": {}, # (docname, FunctionNode)
-        "abstract": {}, # uid -> docname
-        "type": {} # uid -> docname
-        # 'objects': {},  # fullname -> docname, objtype
-        # 'modules': {},  # modname -> docname, synopsis, platform, deprecated
+        # name -> [{docname, scope, uid}, ...]
+        "module": {},
+        "abstract": {},
+        "type": {},
+        # name -> [{docname, scope, templateparameters, signature}]
+        "function": {},
     }
     indices = [
         # JuliaModuleIndex,
     ]
 
-    def find_obj(self, refname, target):
-        print(refname)
-        print(target)
+    def resolvescope(self, basescope, targetstring):
+        if "." not in targetstring:
+            return basescope, targetstring
+        innerscope, name = targetstring.rsplit(".", 1)
+        innerscope = innerscope.split(".")
+        if innerscope[0] == "":
+            return basescope + innerscope[1:], name
+        return innerscope, name
+
+    def find_function(self, node, target):
+        raise NotImplementedError()
+
+    def find_obj(self, rolename, node, targetstring):
         for typename, objtype in self.object_types.items():
-            if refname in objtype.roles:
+            if rolename in objtype.roles:
                 break
         else:
             return []
-        print("data", self.initial_data)
-        if target in self.initial_data[typename]:
-            return [(target, self.initial_data[typename][target])]
-        return []
+        if typename == "function":
+            return find_function(node, targetstring)
+        basescope = node['jl:scope']
+        refscope, name = self.resolvescope(basescope, targetstring)
+        if name not in self.initial_data[typename]:
+            return []
+        matches = []
+        for obj in self.initial_data[typename][name]:
+            if refscope == obj["scope"]:
+                matches.append(obj)
+        return matches
 
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        # node = nodes.reference('', '', internal=True)
-        # node['refid'] = target
-        # node['reftitle'] = target
-        # node += contnode
-        # return node
-
-        # print('env:' + str(env))
-        # print('fromdocname:' + str(fromdocname))
-        # print('builder:' + str(builder))
-        # print('typ:' + str(typ))
-        # print('target:' + str(target))
-        # print('node:' + str(node))
-        # print('contnode:' + str(contnode))
-        # assert False
-        matches = self.find_obj(typ, target)
+        matches = self.find_obj(typ, node, target)
         if not matches:
             return None
         elif len(matches) > 1:
@@ -173,11 +171,9 @@ class JuliaDomain(Domain):
                 'more than one target found for cross-reference '
                 '%r: %s' % (target, ', '.join(match[0] for match in matches)),
                 node)
-        name, todocname = matches[0]
-        return make_refnode(builder, fromdocname, todocname, target,
+        t = matches[0]
+        return make_refnode(builder, fromdocname, t["docname"], t["uid"],
                                 contnode, target)
-        # return make_refnode(builder, fromdocname, obj[0], name,
-        #                         contnode, name)
 
 
 def update_builder(app):
