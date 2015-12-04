@@ -77,7 +77,7 @@ def visit_function(translator, node):
 
 TranslatorFunctions = {
     "Module": (visit_module, depart_generic),
-    "AbstractType": (visit_abstracttype, depart_generic),
-    "CompositeType": (visit_compositetype, depart_generic),
+    "Abstract": (visit_abstracttype, depart_generic),
+    "Type": (visit_compositetype, depart_generic),
     "Function":  (visit_function, depart_generic)
 }

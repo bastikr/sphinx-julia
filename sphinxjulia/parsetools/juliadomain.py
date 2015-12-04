@@ -16,13 +16,8 @@ class JuliaDirective(Directive):
     has_content = True
     required_arguments = 1
     optional_arguments = 0
-    final_argument_whitespace = True
-
-    def parse_arguments(self):
-        raise NotImplementedError()
-
-    def parse_content(self, modelnode):
-        self.state.nested_parse(self.content, self.content_offset, modelnode)
+    final_argument_whitespace = False
+    nodeclass = None
 
     def run(self):
         if ':' in self.name:
@@ -31,19 +26,18 @@ class JuliaDirective(Directive):
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
         modelnode = self.parse_arguments()
-        modelnode.setid(self)
-        modelnode.register(self.env)
         self.parse_content(modelnode)
-        #self.env.domaindata['jl'][type(modelnode)].append(modelnode)
         return [modelnode]
+
+    def parse_arguments(self):
+        return self.nodeclass(self.env, name=self.arguments[0])
+
+    def parse_content(self, modelnode):
+        self.state.nested_parse(self.content, self.content_offset, modelnode)
 
 
 class ModuleDirective(JuliaDirective):
-
-    def parse_arguments(self):
-        text = "module " + self.arguments[0] + "\nend"
-        m = self.env.juliaparser.parsestring("module", text)
-        return m
+    nodeclass = model.Module
 
     def parse_content(self, modelnode):
         self.env.ref_context['jl:scope'].append(modelnode.name)
@@ -52,27 +46,20 @@ class ModuleDirective(JuliaDirective):
 
 
 class FunctionDirective(JuliaDirective):
+    nodeclass = model.Function
+    final_argument_whitespace = True
 
     def parse_arguments(self):
-        text = "function " + self.arguments[0] + "\nend"
-        m = self.env.juliaparser.parsestring("function", text)
-        return m
+        d = modelparser.parse_functionstring(self.arguments[0])
+        return self.nodeclass(self.env, **d)
 
 
 class AbstractTypeDirective(JuliaDirective):
-
-    def parse_arguments(self):
-        text = "abstract " + self.arguments[0]
-        m = self.env.juliaparser.parsestring("abstracttype", text)
-        return m
+    nodeclass = model.Abstract
 
 
-class CompositeTypeDirective(JuliaDirective):
-
-    def parse_arguments(self):
-        text = "type " + self.arguments[0] + "\nend"
-        m = self.env.juliaparser.parsestring("compositetype", text)
-        return m
+class TypeDirective(JuliaDirective):
+    nodeclass = model.Type
 
 
 class JuliaXRefRole(XRefRole):
@@ -107,7 +94,7 @@ class JuliaDomain(Domain):
     directives = {
         'function': FunctionDirective,
         'abstract': AbstractTypeDirective,
-        'type': CompositeTypeDirective,
+        'type': TypeDirective,
         'module': ModuleDirective,
     }
 
@@ -123,7 +110,7 @@ class JuliaDomain(Domain):
         "module": {},
         "abstract": {},
         "type": {},
-        # name -> [{docname, scope, templateparameters, signature}]
+        # name -> [{docname, scope, templateparameters, signature, uid}]
         "function": {},
     }
     indices = [
@@ -132,15 +119,54 @@ class JuliaDomain(Domain):
 
     def resolvescope(self, basescope, targetstring):
         if "." not in targetstring:
-            return basescope, targetstring
+            return [], targetstring
         innerscope, name = targetstring.rsplit(".", 1)
         innerscope = innerscope.split(".")
         if innerscope[0] == "":
             return basescope + innerscope[1:], name
         return innerscope, name
 
-    def find_function(self, node, target):
-        raise NotImplementedError()
+    def match_argument(self, pattern, argument):
+        if pattern.name and pattern.name != argument.name:
+            return False
+        if pattern.argumenttype and pattern.argumenttype != argument.argumenttype:
+            return False
+        if pattern.value and pattern.value != argument.value:
+            return False
+        return True
+
+    def match_signature(self, pattern, function):
+        parguments = pattern.positionalarguments + pattern.optionalarguments
+        farguments = function.positionalarguments + function.optionalarguments
+        if len(parguments) != len(parguments):
+            return False
+        for i in range(len(parguments)):
+            if not self.match_argument(parguments[i], farguments[i]):
+                return False
+        pkwd = {arg.name: arg for arg in pattern.keywordarguments}
+        fkwd = {arg.name: arg for arg in function.keywordarguments}
+        for name in pkwd:
+            if name not in fkwd or not match_argument(pkwd["name"]):
+                return False
+        return True
+
+    def find_function(self, node, targetstring):
+        basescope = node['jl:scope']
+        d = modelparser.parse_functionstring(targetstring)
+        name = ".".join([d["modulename"], d["name"]])
+        refscope, name = self.resolvescope(basescope, name)
+        if name not in self.initial_data["function"]:
+            return []
+        tpars = set(d["templateparameters"])
+        matches = []
+        for func in self.initial_data["function"][name]:
+            if refscope != func["scope"]:
+                continue
+            if tpars and tpars != set(func.templateparameters):
+                continue
+            if self.match_signature(d["signature"], func["signature"]):
+                matches.append(func)
+        return matches
 
     def find_obj(self, rolename, node, targetstring):
         for typename, objtype in self.object_types.items():
@@ -149,7 +175,7 @@ class JuliaDomain(Domain):
         else:
             return []
         if typename == "function":
-            return find_function(node, targetstring)
+            return self.find_function(node, targetstring)
         basescope = node['jl:scope']
         refscope, name = self.resolvescope(basescope, targetstring)
         if name not in self.initial_data[typename]:
@@ -195,7 +221,7 @@ def setup(app):
     # app.add_config_value('julia_signature_show_default', True, 'html')
     # app.add_config_value('julia_docstring_show_type', True, 'html')
 
-    for name in ["Module", "AbstractType", "CompositeType", "Function"]:
+    for name in ["Module", "Abstract", "Type", "Function"]:
         translator = translators.TranslatorFunctions[name]
         modelclass = getattr(model, name)
         app.add_node(modelclass,

@@ -19,6 +19,22 @@ class AutoDirective(Directive):
             nodes.extend(obj.create_nodes(self))
         return nodes
 
+    def create_nodes(self, directive):
+        self.setid(directive)
+        self.register(directive.env)
+        self.append(self.parsedocstring(directive))
+        return [self]
+
+    def parsedocstring(self, directive):
+        docstringlines = self.docstring.split("\n")
+        directive.env.app.emit('autodoc-process-docstring',
+                               'class', self["ids"][0], self, {}, docstringlines)
+        content = ViewList(docstringlines)
+        docstringnode = nodes.paragraph()
+        directive.state.nested_parse(content, directive.content_offset,
+                                     docstringnode)
+        return docstringnode
+
 
 class AutoFileDirective(Directive):
     has_content = False
@@ -35,6 +51,25 @@ class AutoFileDirective(Directive):
 
 class AutoModuleDirective(AutoDirective):
     modelclass = model.Module
+
+    def create_nodes(self, directive):
+        # Unnamed module (parsed file without toplevel module)
+        if self.name == "":
+            self["ids"] = [""]
+            self.append(self.parsedocstring(directive))
+            for n in self.body:
+                self.extend(n.create_nodes(directive))
+            return self.children
+        # Normal module
+        self.setid(directive)
+        self.register(directive.env)
+        scope = directive.env.ref_context['jl:scope']
+        scope.append(self.name)
+        self.append(self.parsedocstring(directive))
+        for n in self.body:
+            self.extend(n.create_nodes(directive))
+        scope.pop()
+        return [self]
 
 
 class AutoFunctionDirective(AutoDirective):
