@@ -10,6 +10,7 @@ from sphinx.util.nodes import make_refnode
 import model
 import modelparser
 import translators
+import query
 
 
 class JuliaDirective(Directive):
@@ -123,75 +124,19 @@ class JuliaDomain(Domain):
         # JuliaModuleIndex,
     ]
 
-    def resolvescope(self, basescope, targetstring):
-        if "." not in targetstring:
-            return [], targetstring
-        innerscope, name = targetstring.rsplit(".", 1)
-        innerscope = innerscope.split(".")
-        if innerscope[0] == "":
-            return basescope + innerscope[1:], name
-        return innerscope, name
-
-    def match_argument(self, pattern, argument):
-        if pattern.name and pattern.name != argument.name:
-            return False
-        if pattern.argumenttype and pattern.argumenttype != argument.argumenttype:
-            return False
-        if pattern.value and pattern.value != argument.value:
-            return False
-        return True
-
-    def match_signature(self, pattern, function):
-        parguments = pattern.positionalarguments + pattern.optionalarguments
-        farguments = function.positionalarguments + function.optionalarguments
-        if len(parguments) != len(parguments):
-            return False
-        for i in range(len(parguments)):
-            if not self.match_argument(parguments[i], farguments[i]):
-                return False
-        pkwd = {arg.name: arg for arg in pattern.keywordarguments}
-        fkwd = {arg.name: arg for arg in function.keywordarguments}
-        for name in pkwd:
-            if name not in fkwd or not match_argument(pkwd["name"]):
-                return False
-        return True
-
-    def find_function(self, node, targetstring):
-        basescope = node['jl:scope']
-        d = modelparser.parse_functionstring(targetstring)
-        name = ".".join([d["modulename"], d["name"]])
-        refscope, name = self.resolvescope(basescope, name)
-        if name not in self.initial_data["function"]:
-            return []
-        tpars = set(d["templateparameters"])
-        matches = []
-        for func in self.initial_data["function"][name]:
-            if refscope != func["scope"]:
-                continue
-            if tpars and tpars != set(func.templateparameters):
-                continue
-            if self.match_signature(d["signature"], func["signature"]):
-                matches.append(func)
-        return matches
-
     def find_obj(self, rolename, node, targetstring):
         for typename, objtype in self.object_types.items():
             if rolename in objtype.roles:
                 break
         else:
             return []
-        if typename == "function":
-            return self.find_function(node, targetstring)
         basescope = node['jl:scope']
-        refscope, name = self.resolvescope(basescope, targetstring)
-        if name not in self.initial_data[typename]:
-            return []
-        matches = []
-        for obj in self.initial_data[typename][name]:
-            if refscope == obj["scope"]:
-                matches.append(obj)
-        return matches
-
+        if typename == "function":
+            return query.find_function_by_string(basescope, targetstring,
+                                                 self.initial_data["function"])
+        else:
+            return query.find_obj_by_string(basescope, targetstring,
+                                            self.initial_data[typename])
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
