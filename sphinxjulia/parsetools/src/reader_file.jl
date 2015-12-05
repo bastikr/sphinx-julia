@@ -113,23 +113,25 @@ function read_signature(x::Vector)
     positionalarguments = model.Argument[]
     optionalarguments = model.Argument[]
     keywordarguments = model.Argument[]
-    varargsname = ""
-    kwvarargsname = ""
+    varargs = nothing
+    kwvarargs = nothing
+    # Read keyword arguments
     if length(x) > 0 && typeof(x[1]) == Expr && x[1].head == :parameters
         @assert x[1].head == :parameters
         for arg in x[1].args
             @assert typeof(arg) == Expr
             if arg.head == Symbol("...")
-                kwvarargsname = string(arg.args[1])
+                kwvarargs = read_argument(arg.args[1])
             else
                 push!(keywordarguments, read_argument(arg))
             end
         end
         x = x[2:end]
     end
+    # Read positional arguments
     for arg in x
         if typeof(arg) == Expr && arg.head == Symbol("...")
-            varargsname = string(arg.args[1])
+            varargs = read_argument(arg.args[1])
         else
             argument = read_argument(arg)
             if argument.value == ""
@@ -141,7 +143,7 @@ function read_signature(x::Vector)
     end
 
     model.Signature(positionalarguments, optionalarguments, keywordarguments,
-              varargsname, kwvarargsname)
+              varargs, kwvarargs)
 end
 
 function read_function(x::Expr, docstring::AbstractString)
@@ -225,13 +227,13 @@ function read_typedeclaration(x::Expr)
     return string(name), templateparameters, supertype
 end
 
-function read_abstracttype(x::Expr, docstring::AbstractString)
+function read_abstract(x::Expr, docstring::AbstractString)
     @assert x.head == :abstract
     name, templateparameters, supertype = read_typedeclaration(x.args[1])
-    return model.AbstractType(name, templateparameters, supertype, docstring)
+    return model.Abstract(name, templateparameters, supertype, docstring)
 end
 
-function read_compositetype(x::Expr, docstring::AbstractString)
+function read_type(x::Expr, docstring::AbstractString)
     @assert x.head == :type
     name, templateparameters, supertype = read_typedeclaration(x.args[2])
     fields = model.Field[]
@@ -264,7 +266,7 @@ end
 function read_module(x::Expr, docstring::AbstractString)
     @assert x.head == :module
     name = string(x.args[2])
-    body = Union{model.Module, model.AbstractType, model.CompositeType, model.Function}[]
+    body = Union{model.Module, model.Abstract, model.CompositeType, model.Function}[]
     @assert length(x.args) == 3
     @assert typeof(x.args[3]) == Expr
     @assert x.args[3].head == :block
@@ -274,9 +276,9 @@ function read_module(x::Expr, docstring::AbstractString)
             continue
         end
         if arg.head == :abstract
-            push!(body, read_abstracttype(arg, innerdocstring))
+            push!(body, read_abstract(arg, innerdocstring))
         elseif arg.head == :type
-            push!(body, read_compositetype(arg, innerdocstring))
+            push!(body, read_type(arg, innerdocstring))
         elseif isfunction(arg)
             func = read_function(arg, innerdocstring)
             if func.name == "eval"
@@ -312,11 +314,11 @@ function read_file(sourcepath)
     buf = "module __temp__\n $(buf)\nend"
     ast = parse(buf)
     m = read_module(ast, "")
-    if length(m.body) == 1 && typeof(m.body[1]) == model.Module
-        return m.body[1]
-    else
+    # if length(m.body) == 1 && typeof(m.body[1]) == model.Module
+    #     return m.body[1]
+    # else
         m.name = ""
         return m
-    end
+    # end
 end
 

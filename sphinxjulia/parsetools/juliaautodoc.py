@@ -1,6 +1,10 @@
+from docutils import nodes
+import docutils.utils
 from docutils.parsers.rst import Directive
+from docutils.statemachine import ViewList
 
 import model
+import query
 
 
 class AutoDirective(Directive):
@@ -10,78 +14,82 @@ class AutoDirective(Directive):
     final_argument_whitespace = False
 
     def run(self):
+        if ':' in self.name:
+            self.domain, self.objtype = self.name.split(':', 1)
+        else:
+            self.domain, self.objtype = '', self.name
+        self.objtype = self.objtype[len("auto"):]
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
-        module = self.env.juliaparser.parsefile(sourcepath)
-        objects = module.match(self.arguments[1], self.modelclass)
-        nodes = []
-        for obj in objects:
-            nodes.extend(obj.create_nodes(self))
-        return nodes
+        targetstring = self.arguments[1]
+        modulenode = self.env.juliaparser.parsefile(sourcepath)
+        catalog = query.catalog_tree(modulenode, scope=[])
+        matches = query.find_object_by_string(self.objtype, [],
+                                              targetstring, catalog)
+        scope = self.env.ref_context['jl:scope']
+        docname = self.env.docname
+        dictionaries = self.env.domaindata['jl']
+        self.document = docutils.utils.new_document("")
+        for node in matches:
+            # Add nodes to index and set their ids
+            query.catalog_tree(node, scope, docname, dictionaries)
+            # Add docstrings
+            node.walk(self)
+        return matches
 
-    def create_nodes(self, directive):
-        self.setid(directive)
-        self.register(directive.env)
-        self.append(self.parsedocstring(directive))
-        return [self]
+    def dispatch_visit(self, node):
+        if isinstance(node, model.JuliaModelNode):
+            self.add_docstring(node)
 
-    def parsedocstring(self, directive):
-        docstringlines = self.docstring.split("\n")
-        directive.env.app.emit('autodoc-process-docstring',
-                               'class', self["ids"][0], self, {}, docstringlines)
+    def add_docstring(self, node):
+        docstringlines = node.docstring.split("\n")
+        self.env.app.emit('autodoc-process-docstring',
+                          'class', node["ids"][0], node, {}, docstringlines)
         content = ViewList(docstringlines)
         docstringnode = nodes.paragraph()
-        directive.state.nested_parse(content, directive.content_offset,
-                                     docstringnode)
-        return docstringnode
+        self.state.nested_parse(content, self.content_offset,
+                                docstringnode)
+        node.insert(0, docstringnode)
 
 
-class AutoFileDirective(Directive):
-    has_content = False
+class AutoFileDirective(AutoDirective):
     required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = False
 
     def run(self):
+        if ':' in self.name:
+            self.domain, self.objtype = self.name.split(':', 1)
+        else:
+            self.domain, self.objtype = '', self.name
+        self.objtype = self.objtype[len("auto"):]
         self.env = self.state.document.settings.env
         sourcepath = self.arguments[0]
-        module = self.env.juliaparser.parsefile(sourcepath)
-        return module.create_nodes(self)
+        modulenode = self.env.juliaparser.parsefile(sourcepath)
+        scope = self.env.ref_context['jl:scope']
+        docname = self.env.docname
+        dictionaries = self.env.domaindata['jl']
+        self.document = docutils.utils.new_document("")
+        for node in modulenode.body:
+            # Add nodes to index and set their ids
+            query.catalog_tree(node, scope, docname, dictionaries)
+            # Add docstrings
+            node.walk(self)
+        return modulenode.body
 
 
 class AutoModuleDirective(AutoDirective):
-    modelclass = model.Module
-
-    def create_nodes(self, directive):
-        # Unnamed module (parsed file without toplevel module)
-        if self.name == "":
-            self["ids"] = [""]
-            self.append(self.parsedocstring(directive))
-            for n in self.body:
-                self.extend(n.create_nodes(directive))
-            return self.children
-        # Normal module
-        self.setid(directive)
-        self.register(directive.env)
-        scope = directive.env.ref_context['jl:scope']
-        scope.append(self.name)
-        self.append(self.parsedocstring(directive))
-        for n in self.body:
-            self.extend(n.create_nodes(directive))
-        scope.pop()
-        return [self]
+    pass
 
 
 class AutoFunctionDirective(AutoDirective):
-    modelclass = model.Function
+    final_argument_whitespace = True
 
 
-class AutoCompositeType(AutoDirective):
-    modelclass = model.CompositeType
+class AutoType(AutoDirective):
+    pass
 
 
-class AutoAbstractType(AutoDirective):
-    modelclass = model.AbstractType
+class AutoAbstract(AutoDirective):
+    pass
 
 
 def setup(app):
@@ -89,7 +97,7 @@ def setup(app):
     app.add_directive('jl:autofile', AutoFileDirective)
     app.add_directive('jl:automodule', AutoModuleDirective)
     app.add_directive('jl:autofunction', AutoFunctionDirective)
-    app.add_directive('jl:autotype', AutoCompositeType)
-    app.add_directive('jl:autoabstract', AutoAbstractType)
+    app.add_directive('jl:autotype', AutoType)
+    app.add_directive('jl:autoabstract', AutoAbstract)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-skip-member')

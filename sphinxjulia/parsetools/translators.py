@@ -47,13 +47,13 @@ def visit_module(translator, node):
     visit_generic(translator, node, "module", node.name)
 
 
-def visit_compositetype(translator, node):
+def visit_type(translator, node):
     tpars = format_templateparameters(node.templateparameters)
     partype = format_parenttype(node.parenttype)
     visit_generic(translator, node, "type", node.name + tpars + partype)
 
 
-def visit_abstracttype(translator, node):
+def visit_abstract(translator, node):
     tpars = format_templateparameters(node.templateparameters)
     partype = format_parenttype(node.parenttype)
     visit_generic(translator, node, "abstract", node.name + tpars + partype)
@@ -77,7 +77,7 @@ def visit_function(translator, node):
 
 TranslatorFunctions = {
     "Module": (visit_module, depart_generic),
-    "Abstract": (visit_abstracttype, depart_generic),
-    "Type": (visit_compositetype, depart_generic),
+    "Abstract": (visit_abstract, depart_generic),
+    "Type": (visit_type, depart_generic),
     "Function":  (visit_function, depart_generic)
 }

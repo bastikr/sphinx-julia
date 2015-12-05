@@ -27,14 +27,16 @@ class JuliaDirective(Directive):
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
         modelnode = self.parse_arguments()
+        scope = self.env.ref_context['jl:scope']
+        docname = self.env.docname
+        dictionary = self.env.domaindata['jl'][self.objtype]
+        modelnode["ids"] = [modelnode.uid(scope)]
+        modelnode.register(docname, scope, dictionary)
         self.parse_content(modelnode)
         return [modelnode]
 
     def parse_arguments(self):
-        modelnode = self.nodeclass(name=self.arguments[0])
-        modelnode["ids"] = [modelnode.uid(self.env)]
-        modelnode.register(self.env)
-        return modelnode
+        return self.nodeclass(name=self.arguments[0])
 
     def parse_content(self, modelnode):
         self.state.nested_parse(self.content, self.content_offset, modelnode)
@@ -55,13 +57,10 @@ class FunctionDirective(JuliaDirective):
 
     def parse_arguments(self):
         d = modelparser.parse_functionstring(self.arguments[0])
-        modelnode = self.nodeclass(**d)
-        modelnode["ids"] = [modelnode.uid(self.env)]
-        modelnode.register(self.env)
-        return modelnode
+        return self.nodeclass(**d)
 
 
-class AbstractTypeDirective(JuliaDirective):
+class AbstractDirective(JuliaDirective):
     nodeclass = model.Abstract
 
 
@@ -100,7 +99,7 @@ class JuliaDomain(Domain):
 
     directives = {
         'function': FunctionDirective,
-        'abstract': AbstractTypeDirective,
+        'abstract': AbstractDirective,
         'type': TypeDirective,
         'module': ModuleDirective,
     }
@@ -131,12 +130,9 @@ class JuliaDomain(Domain):
         else:
             return []
         basescope = node['jl:scope']
-        if typename == "function":
-            return query.find_function_by_string(basescope, targetstring,
-                                                 self.initial_data["function"])
-        else:
-            return query.find_obj_by_string(basescope, targetstring,
-                                            self.initial_data[typename])
+        dictionaries = self.env.domaindata['jl']
+        return query.find_object_by_string(typename, basescope,
+                                           targetstring, dictionaries)
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):

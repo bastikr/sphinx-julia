@@ -5,8 +5,8 @@ import model
 scriptdir = "scripts"
 scripts = {
     "file": "sourcefile2pythonmodel.jl",
-    "abstracttype": "parse_abstracttype.jl",
-    "compositetype": "parse_compositetype.jl",
+    "abstract": "parse_abstract.jl",
+    "type": "parse_type.jl",
     "module": "parse_module.jl",
     "function": "parse_function.jl"
 }

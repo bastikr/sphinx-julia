@@ -2,5 +2,5 @@ include("../src/parsetools.jl")
 
 text = ARGS[1]
 ast = parse(text)
-model = parsetools.reader.read_compositetype(ast, "")
+model = parsetools.reader.read_type(ast, "")
 parsetools.writer.write_python(STDOUT, model)

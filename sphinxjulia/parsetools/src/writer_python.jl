@@ -12,10 +12,12 @@ function Base.string(m::model.JuliaModel)
             p = "["*join(["'$x'" for x=p], ", ")*"]"
         elseif typeof(p) <: Array
             p = "["*join([string(x) for x=p], ", ")*"]"
+        elseif p == nothing
+            p = "None"
         else
             p = string(p)
         end
-        push!(d, "$name= $p, ")
+        push!(d, "$name=$p, ")
     end
     push!(d, ")\n")
     return join(d)

@@ -1,5 +1,4 @@
 from docutils import nodes
-from docutils.statemachine import ViewList
 
 import hashlib
 
@@ -14,6 +13,8 @@ class JuliaModel:
                 assert isinstance(arg, fieldtype)
                 setattr(self, fieldname, arg)
             else:
+                if isinstance(fieldtype, tuple):
+                    fieldtype = fieldtype[0]
                 setattr(self, fieldname, fieldtype())
         assert len(kwargs) == 0
 
@@ -28,21 +29,19 @@ class JuliaModelNode(JuliaModel, nodes.Element):
         JuliaModel.__init__(self, **kwargs)
         nodes.Element.__init__(self)
 
-    def uid(self, env):
-         return ".".join(env.ref_context['jl:scope'] + [self.name])
+    def uid(self, scope):
+        return ".".join(scope + [self.name])
 
-    def register(self, env):
-        typeidentifier = self.__class__.__name__.lower()
-        d = env.domaindata['jl'][typeidentifier]
-        if self.name in d:
-            entries = d[self.name]
+    def register(self, docname, scope, dictionary):
+        if self.name in dictionary:
+            entries = dictionary[self.name]
         else:
             entries = []
-            d[self.name] = entries
+            dictionary[self.name] = entries
         entry = {
-            "docname": env.docname,
-            "scope": env.ref_context['jl:scope'].copy(),
-            "uid": self["ids"][0]
+            "docname": docname,
+            "scope": scope.copy(),
+            "uid": self.uid(scope)
         }
         entries.append(entry)
 
@@ -54,7 +53,8 @@ class Argument(JuliaModel):
 class Signature(JuliaModel):
     __fields__ = {"positionalarguments": list, "optionalarguments": list,
                   "keywordarguments": list,
-                  "varargsname": Argument, "kwvarargsname": Argument}
+                  "varargs": (type(None), Argument),
+                  "kwvarargs": (type(None), Argument)}
 
 
 class Function(JuliaModelNode):
@@ -62,27 +62,24 @@ class Function(JuliaModelNode):
                   "signature": Signature, "docstring": str}
     hashfunc = hashlib.md5()
 
-    def uid(self, env):
-        scope = env.ref_context['jl:scope']
+    def uid(self, scope):
         x = bytes(str(self.templateparameters) + str(self.signature), "UTF-16")
         self.hashfunc.update(x)
         name = self.name + "-" + self.hashfunc.hexdigest()
-        return ".".join(env.ref_context['jl:scope'] + [name])
+        return ".".join(scope + [name])
 
-    def register(self, env):
-        typeidentifier = self.__class__.__name__.lower()
-        d = env.domaindata['jl'][typeidentifier]
-        if self.name in d:
-            entries = d[self.name]
+    def register(self, docname, scope, dictionary):
+        if self.name in dictionary:
+            entries = dictionary[self.name]
         else:
             entries = []
-            d[self.name] = entries
+            dictionary[self.name] = entries
         entry = {
-            "docname": env.docname,
-            "scope": env.ref_context['jl:scope'].copy(),
+            "docname": docname,
+            "scope": scope.copy(),
             "templateparameters": self.templateparameters,
             "signature": self.signature,
-            "uid": self["ids"][0]
+            "uid": self.uid(scope),
         }
         entries.append(entry)
 
@@ -102,4 +99,8 @@ class Abstract(JuliaModelNode):
 
 
 class Module(JuliaModelNode):
-    __fields__ = {"name": str, "body":str, "docstring": str}
+    __fields__ = {"name": str, "body":list, "docstring": str}
+
+    def __init__(self, **kwargs):
+        JuliaModelNode.__init__(self, **kwargs)
+        self.extend(self.body)

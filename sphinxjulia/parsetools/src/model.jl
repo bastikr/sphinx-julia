@@ -10,8 +10,8 @@ type Signature<: JuliaModel
     positionalarguments::Vector{Argument}
     optionalarguments::Vector{Argument}
     keywordarguments::Vector{Argument}
-    varargsname::AbstractString
-    kwvarargsname::AbstractString
+    varargs::Union{Argument, Void}
+    kwvarargs::Union{Argument, Void}
 end
 
 type Function<: JuliaModel
@@ -28,7 +28,7 @@ type Field<: JuliaModel
     value::AbstractString
 end
 
-type AbstractType<: JuliaModel
+type Abstract<: JuliaModel
     name::AbstractString
     templateparameters::Vector{AbstractString}
     parenttype::AbstractString
@@ -46,7 +46,7 @@ end
 
 type Module<: JuliaModel
     name::AbstractString
-    body::Vector{Union{Module,AbstractType,CompositeType,Function}}
+    body::Vector{Union{Module,Abstract,CompositeType,Function}}
     docstring::AbstractString
 end
 
