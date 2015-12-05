@@ -13,6 +13,7 @@ scripts = {
 
 eval_environment = {x: getattr(model, x) for x in dir(model) if not x.startswith("_")}
 
+
 class JuliaParser:
     cached_files = {}
 
@@ -50,7 +51,19 @@ def splitscope(text):
         scope = scope.split(".")
     else:
         scope, name = [], text
-    return scope, text
+    return scope, name
+
+
+def parse_modulestring(text):
+    return model.Module(name=text)
+
+
+def parse_abstractstring(text):
+    return model.Abstract(name=text)
+
+
+def parse_typestring(text):
+    return model.Type(name=text)
 
 
 def parse_argumentstring(text):
@@ -70,7 +83,6 @@ def parse_signaturestring(text):
         "keywordarguments": [],
     }
     argumenttype = "positionalarguments"
-    arguments = d[argumenttype]
     i_start = 0
     i = 0
     while i < len(text):
@@ -119,7 +131,7 @@ def parse_functionstring(text):
         d["modulename"] = modulename.strip()
     d["name"] = name.strip()
     d["signature"] = parse_signaturestring(text[i_sig0+1:i_sig1])
-    return d
+    return model.Function(**d)
 
 
 brackets = {
@@ -127,6 +139,7 @@ brackets = {
     "[": "]",
     "{": "}"
 }
+
 
 def find_closing_bracket(text, start, openbracket):
     closebracket = brackets[openbracket]
@@ -139,3 +152,8 @@ def find_closing_bracket(text, start, openbracket):
         if counter == 0:
             return i
         return -1
+
+
+def parse(objtype, text):
+    f = eval("parse_%sstring" % objtype)
+    return f(text)
