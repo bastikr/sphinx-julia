@@ -43,24 +43,47 @@ def match_signature(pattern, signature):
 def match_function(pattern, function):
     if pattern.name != function.name:
         return False
-    tpars = set(pattern["templateparameters"])
+    tpars = set(pattern.templateparameters)
     if tpars and tpars != set(function.templateparameters):
         return False
     return match_signature(pattern.signature, function.signature)
 
 
+def match_module(pattern, module):
+    if pattern.name != module.name:
+        return False
+    return True
+
+
+def match_type(pattern, type):
+    if pattern.name != type.name:
+        return False
+    return True
+
+
+def match_abstract(pattern, abstract):
+    if pattern.name != abstract.name:
+        return False
+    return True
+
+
+def match(pattern, obj):
+    if type(pattern) != type(obj):
+        return False
+    f = eval("match_"+type(obj).__name__.lower())
+    return f(pattern, obj)
+
+
 def find_function_by_string(basescope, targetstring, dictionary):
-    d = modelparser.parse_functionstring(targetstring)
-    print("d: ", d)
-    print("dictionary: ", dictionary)
-    if "modulename" in d:
-        name = ".".join([d["modulename"], d["name"]])
+    funcpattern = modelparser.parse_functionstring(targetstring)
+    if funcpattern.modulename:
+        name = ".".join([funcpattern.modulename, funcpattern.name])
     else:
-        name = d["name"]
+        name = funcpattern.name
     refscope, name = resolvescope(basescope, name)
     if name not in dictionary:
         return []
-    tpars = set(d["templateparameters"])
+    tpars = set(funcpattern.templateparameters)
     matches = []
     for func in dictionary[name]:
         if refscope != func["scope"]:
@@ -68,7 +91,7 @@ def find_function_by_string(basescope, targetstring, dictionary):
             continue
         if tpars and tpars != set(func.templateparameters):
             continue
-        if match_signature(d["signature"], func["signature"]):
+        if match_signature(funcpattern.signature, func["signature"]):
             matches.append(func)
     return matches
 
@@ -87,27 +110,21 @@ def find_object_by_string(objtype, basescope, targetstring, dictionaries):
     return matches
 
 
-class Catalog(dict):
+class Catalog:
 
-    def __init__(self, scope, docname, document, dictionaries):
-        self["module"] = {}
-        self["abstract"] = {}
-        self["type"] = {}
-        self["function"] = {}
-        self.update(dictionaries)
+    def __init__(self, scope, document, callback):
         self.scope = scope
-        self.docname = docname
         self.document = document
+        self.callback = callback
 
     def dispatch_visit(self, node):
         if isinstance(node, model.JuliaModelNode):
-            identifier = node.__class__.__name__.lower()
             if self.scope and self.scope[0] == "":
                 scope = self.scope[1:]
             else:
                 scope = self.scope
-            node["ids"] = [node.uid(scope)]
-            node.register(self.docname, scope, self[identifier])
+            self.callback(node, scope)
+
         if isinstance(node, model.Module):
             self.scope.append(node.name)
 
@@ -116,10 +133,8 @@ class Catalog(dict):
             self.scope.pop()
 
 
-def catalog_tree(node, scope, docname="", dictionaries=None):
+def catalog_tree(node, callback, scope):
     document = docutils.utils.new_document("")
-    if dictionaries is None:
-        dictionaries = {}
-    c = Catalog(scope, docname, document, dictionaries)
+    c = Catalog(scope, document, callback)
     node.walkabout(c)
     return c

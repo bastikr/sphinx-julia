@@ -4,6 +4,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import model
+import modelparser
 import query
 
 
@@ -20,28 +21,39 @@ class AutoDirective(Directive):
             self.domain, self.objtype = '', self.name
         self.objtype = self.objtype[len("auto"):]
         self.env = self.state.document.settings.env
-        sourcepath = self.arguments[0]
-        targetstring = self.arguments[1]
-        modulenode = self.env.juliaparser.parsefile(sourcepath)
-        catalog = query.catalog_tree(modulenode, scope=[])
-        matches = query.find_object_by_string(self.objtype, [],
-                                              targetstring, catalog)
+        self.sourcepath = self.arguments[0]
+        self.matches = []
+
+        # Load all julia objects from file
+        modulenode = self.env.juliaparser.parsefile(self.sourcepath)
+        # Store nodes matching the search pattern in self.matches
+        self.filter(modulenode)
+
         scope = self.env.ref_context['jl:scope']
-        docname = self.env.docname
-        dictionaries = self.env.domaindata['jl']
-        self.document = docutils.utils.new_document("")
-        for node in matches:
-            # Add nodes to index and set their ids
-            query.catalog_tree(node, scope, docname, dictionaries)
+        for node in self.matches:
+            # Set ids and register nodes in global index
+            query.catalog_tree(node, self.register, scope)
             # Add docstrings
-            node.walk(self)
-        return matches
+            query.catalog_tree(node, self.docstring, scope)
+        return self.matches
 
-    def dispatch_visit(self, node):
+    def filter(self, modulenode):
+        self.pattern = modelparser.parse(self.objtype, self.arguments[1])
+        query.catalog_tree(modulenode, self.match, scope=[])
+
+    def match(self, node, scope):
+        if query.match(self.pattern, node):
+            self.matches.append(node)
+
+    def register(self, node, scope):
         if isinstance(node, model.JuliaModelNode):
-            self.add_docstring(node)
+            objtype = type(node).__name__.lower()
+            node["ids"] = [node.uid(scope)]
+            dictionary = self.env.domaindata['jl'][objtype]
+            node["ids"] = [node.uid(scope)]
+            node.register(self.env.docname, scope, dictionary)
 
-    def add_docstring(self, node):
+    def docstring(self, node, scope):
         docstringlines = node.docstring.split("\n")
         self.env.app.emit('autodoc-process-docstring',
                           'class', node["ids"][0], node, {}, docstringlines)
@@ -55,25 +67,9 @@ class AutoDirective(Directive):
 class AutoFileDirective(AutoDirective):
     required_arguments = 1
 
-    def run(self):
-        if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
-        else:
-            self.domain, self.objtype = '', self.name
-        self.objtype = self.objtype[len("auto"):]
-        self.env = self.state.document.settings.env
-        sourcepath = self.arguments[0]
-        modulenode = self.env.juliaparser.parsefile(sourcepath)
-        scope = self.env.ref_context['jl:scope']
-        docname = self.env.docname
-        dictionaries = self.env.domaindata['jl']
-        self.document = docutils.utils.new_document("")
-        for node in modulenode.body:
-            # Add nodes to index and set their ids
-            query.catalog_tree(node, scope, docname, dictionaries)
-            # Add docstrings
-            node.walk(self)
-        return modulenode.body
+    def filter(self, modulenode):
+        # Take all elements of file
+        self.matches.extend(modulenode.children)
 
 
 class AutoModuleDirective(AutoDirective):
