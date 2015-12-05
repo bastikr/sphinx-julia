@@ -59,8 +59,8 @@ def parse_argumentstring(text):
         text, value = text.split("=", 1)
         d["value"] = value.strip()
     if "::" in text:
-        text, argtype = name.split("::", 1)
-        d["argtype"] = argtype.strip()
+        text, argtype = text.split("::", 1)
+        d["argumenttype"] = argtype.strip()
     return model.Argument(name=text.strip(), **d)
 
 
@@ -109,7 +109,7 @@ def parse_functionstring(text):
     if i_templ0 != -1 and i_templ0 < i_sig0:
         assert i_templ1 < i_sig0
         name = text[:i_templ0].strip()
-        templateparameters = text[i_templ0+1, i_templ1].split(",")
+        templateparameters = text[i_templ0+1:i_templ1].split(",")
         d["templateparameters"] = [t.strip() for t in templateparameters]
     else:
         d["templateparameters"] = []
