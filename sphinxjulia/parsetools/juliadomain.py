@@ -30,7 +30,10 @@ class JuliaDirective(Directive):
         return [modelnode]
 
     def parse_arguments(self):
-        return self.nodeclass(self.env, name=self.arguments[0])
+        modelnode = self.nodeclass(name=self.arguments[0])
+        modelnode["ids"] = [modelnode.uid(self.env)]
+        modelnode.register(self.env)
+        return modelnode
 
     def parse_content(self, modelnode):
         self.state.nested_parse(self.content, self.content_offset, modelnode)
@@ -51,7 +54,10 @@ class FunctionDirective(JuliaDirective):
 
     def parse_arguments(self):
         d = modelparser.parse_functionstring(self.arguments[0])
-        return self.nodeclass(self.env, **d)
+        modelnode = self.nodeclass(**d)
+        modelnode["ids"] = [modelnode.uid(self.env)]
+        modelnode.register(self.env)
+        return modelnode
 
 
 class AbstractTypeDirective(JuliaDirective):

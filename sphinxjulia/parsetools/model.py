@@ -24,11 +24,9 @@ class JuliaModel:
 
 class JuliaModelNode(JuliaModel, nodes.Element):
 
-    def __init__(self, env, **kwargs):
+    def __init__(self, **kwargs):
         JuliaModel.__init__(self, **kwargs)
         nodes.Element.__init__(self)
-        self["ids"] = [self.uid(env)]
-        self.register(env)
 
     def uid(self, env):
          return ".".join(env.ref_context['jl:scope'] + [self.name])
