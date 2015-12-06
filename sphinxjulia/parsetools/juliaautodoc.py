@@ -1,5 +1,6 @@
+import os
+
 from docutils import nodes
-import docutils.utils
 from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
@@ -21,7 +22,8 @@ class AutoDirective(Directive):
             self.domain, self.objtype = '', self.name
         self.objtype = self.objtype[len("auto"):]
         self.env = self.state.document.settings.env
-        self.sourcepath = self.arguments[0]
+        sourcedir = self.env.app.config.juliaautodoc_basedir
+        self.sourcepath = os.path.join(sourcedir, self.arguments[0])
         self.matches = []
 
         # Load all julia objects from file
@@ -89,11 +91,16 @@ class AutoAbstract(AutoDirective):
 
 
 def setup(app):
-    # app.add_config_value('juliaautodoc_basedir', '..', 'html')
+    # Config values
+    app.add_config_value('juliaautodoc_basedir', '..', 'html')
+
+    # Directives
     app.add_directive('jl:autofile', AutoFileDirective)
     app.add_directive('jl:automodule', AutoModuleDirective)
     app.add_directive('jl:autofunction', AutoFunctionDirective)
     app.add_directive('jl:autotype', AutoType)
     app.add_directive('jl:autoabstract', AutoAbstract)
+
+    # Events
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-skip-member')
