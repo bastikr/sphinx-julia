@@ -92,7 +92,6 @@ def find_function_by_string(basescope, targetstring, dictionary):
             continue
         if match_signature(funcpattern.signature, func["signature"]):
             matches.append(func)
-        else:
     return matches
 
 
