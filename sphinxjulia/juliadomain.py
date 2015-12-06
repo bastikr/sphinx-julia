@@ -14,8 +14,7 @@ class JuliaDirective(Directive):
     has_content = True
     required_arguments = 1
     optional_arguments = 0
-    final_argument_whitespace = False
-    nodeclass = None
+    final_argument_whitespace = True
 
     def run(self):
         if ':' in self.name:
@@ -33,14 +32,14 @@ class JuliaDirective(Directive):
         return [modelnode]
 
     def parse_arguments(self):
-        return self.nodeclass(name=self.arguments[0])
+        return modelparser.parse(self.objtype, self.arguments[0])
 
     def parse_content(self, modelnode):
         self.state.nested_parse(self.content, self.content_offset, modelnode)
 
 
-class ModuleDirective(JuliaDirective):
-    nodeclass = model.Module
+class Module(JuliaDirective):
+    final_argument_whitespace = False
 
     def parse_content(self, modelnode):
         if 'jl:scope' not in self.env.ref_context:
@@ -50,20 +49,16 @@ class ModuleDirective(JuliaDirective):
         self.env.ref_context['jl:scope'].pop()
 
 
-class FunctionDirective(JuliaDirective):
-    nodeclass = model.Function
-    final_argument_whitespace = True
-
-    def parse_arguments(self):
-        return modelparser.parse_functionstring(self.arguments[0])
+class Function(JuliaDirective):
+    pass
 
 
-class AbstractDirective(JuliaDirective):
-    nodeclass = model.Abstract
+class Abstract(JuliaDirective):
+    pass
 
 
-class TypeDirective(JuliaDirective):
-    nodeclass = model.Type
+class Type(JuliaDirective):
+    pass
 
 
 class JuliaXRefRole(XRefRole):
@@ -96,10 +91,10 @@ class JuliaDomain(Domain):
     }
 
     directives = {
-        'function': FunctionDirective,
-        'abstract': AbstractDirective,
-        'type': TypeDirective,
-        'module': ModuleDirective,
+        'function': Function,
+        'abstract': Abstract,
+        'type': Type,
+        'module': Module,
     }
 
     roles = {
