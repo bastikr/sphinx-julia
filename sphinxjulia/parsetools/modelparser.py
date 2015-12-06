@@ -117,7 +117,7 @@ def parse_functionstring(text):
     i_sig1 = text.rfind(")")
     if i_sig0 == -1:
         d["name"] = text
-        return d
+        return model.Function(**d)
     assert i_sig0 < i_sig1
     i_templ0 = text.find("{")
     i_templ1 = text.find("}", i_templ0)
