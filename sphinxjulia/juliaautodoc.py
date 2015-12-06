@@ -29,7 +29,7 @@ class AutoDirective(Directive):
         # Store nodes matching the search pattern in self.matches
         self.filter(modulenode)
 
-        scope = self.env.ref_context['jl:scope']
+        scope = self.env.ref_context.get('jl:scope', [])
         for node in self.matches:
             # Set ids and register nodes in global index
             query.walk_tree(node, self.register, scope)

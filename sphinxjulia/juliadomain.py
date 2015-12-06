@@ -24,7 +24,7 @@ class JuliaDirective(Directive):
             self.domain, self.objtype = '', self.name
         self.env = self.state.document.settings.env
         modelnode = self.parse_arguments()
-        scope = self.env.ref_context['jl:scope']
+        scope = self.env.ref_context.get('jl:scope', [])
         docname = self.env.docname
         dictionary = self.env.domaindata['jl'][self.objtype]
         modelnode["ids"] = [modelnode.uid(scope)]
@@ -43,6 +43,8 @@ class ModuleDirective(JuliaDirective):
     nodeclass = model.Module
 
     def parse_content(self, modelnode):
+        if 'jl:scope' not in self.env.ref_context:
+            self.env.ref_context['jl:scope'] = []
         self.env.ref_context['jl:scope'].append(modelnode.name)
         JuliaDirective.parse_content(self, modelnode)
         self.env.ref_context['jl:scope'].pop()
@@ -66,7 +68,7 @@ class TypeDirective(JuliaDirective):
 
 class JuliaXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        refnode['jl:scope'] = env.ref_context['jl:scope'].copy()
+        refnode['jl:scope'] = env.ref_context.get('jl:scope', []).copy()
         if not has_explicit_title:
             title = title.lstrip('.')    # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title
@@ -147,9 +149,7 @@ class JuliaDomain(Domain):
 
 
 def update_builder(app):
-    #app.warn(str(parser))
     app.env.juliaparser = modelparser.JuliaParser()
-    app.env.ref_context["jl:scope"] = []
     # translator = app.builder.translator_class
     # translator.first_kwordparam = True
     # _visit_desc_parameterlist = translator.visit_desc_parameterlist
