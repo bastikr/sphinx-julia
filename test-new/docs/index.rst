@@ -37,6 +37,8 @@ Juliadomain
 
             asdsdfdsf
 
+        .. jl:function:: testfunc{S, T}(a::Int, b=1; c="z")
+
 
 Autofile example
 ----------------
@@ -65,7 +67,7 @@ Automodule
 Autofunction
 ------------
 
-.. jl:autofunction:: ../src/DormandPrince45.jl interpolate
+.. jl:autofunction:: DormandPrince45.jl interpolate
 
 
 Autofile DormandPrince
@@ -73,3 +75,13 @@ Autofile DormandPrince
 
 .. jl:autofile:: ../src/DormandPrince45.jl
 
+
+:jl:type:`DormandPrince45.CType`
+
+:jl:abstract:`AType`
+
+:jl:func:`testfunc`
+
+:jl:func:`DormandPrince45.ode`
+
+:jl:mod:`B`

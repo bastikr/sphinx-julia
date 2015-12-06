@@ -117,7 +117,7 @@ julia_signature_show_default = True
 julia_docstring_show_type = True
 
 # Julia autodoc
-juliaautodoc_basedir = ".."
+juliaautodoc_basedir = "../src"
 
 # Napoleon settings
 napoleon_google_docstring = False
