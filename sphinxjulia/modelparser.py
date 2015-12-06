@@ -97,9 +97,9 @@ def parse_signaturestring(text):
             if argstring.endswith("..."):
                 arg = parse_argumentstring(argstring[:-3])
                 if argumenttype == "positionalarguments":
-                    d["vararg"] = arg
+                    d["varargs"] = arg
                 else:
-                    d["kwvararg"] = arg
+                    d["kwvarargs"] = arg
             else:
                 d[argumenttype].append(parse_argumentstring(argstring))
             i_start = i+1
