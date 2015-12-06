@@ -56,8 +56,7 @@ class FunctionDirective(JuliaDirective):
     final_argument_whitespace = True
 
     def parse_arguments(self):
-        d = modelparser.parse_functionstring(self.arguments[0])
-        return self.nodeclass(**d)
+        return modelparser.parse_functionstring(self.arguments[0])
 
 
 class AbstractDirective(JuliaDirective):
@@ -142,11 +141,12 @@ class JuliaDomain(Domain):
         elif len(matches) > 1:
             env.warn_node(
                 'more than one target found for cross-reference '
-                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
+                '%r: %s' % (target, ', '.join(match["uid"] for match in matches)),
                 node)
-        t = matches[0]
-        return make_refnode(builder, fromdocname, t["docname"], t["uid"],
-                                contnode, target)
+        match = matches[0]
+        return make_refnode(builder, fromdocname,
+                            match["docname"], match["uid"],
+                            contnode, target)
 
 
 def update_builder(app):
