@@ -86,13 +86,13 @@ def find_function_by_string(basescope, targetstring, dictionary):
     tpars = set(funcpattern.templateparameters)
     matches = []
     for func in dictionary[name]:
-        if refscope != func["scope"]:
-            print("scopes different: ", refscope, func["scope"])
+        if len(refscope)!=0 and refscope != func["scope"]:
             continue
         if tpars and tpars != set(func.templateparameters):
             continue
         if match_signature(funcpattern.signature, func["signature"]):
             matches.append(func)
+        else:
     return matches
 
 
@@ -105,7 +105,7 @@ def find_object_by_string(objtype, basescope, targetstring, dictionaries):
         return []
     matches = []
     for obj in dictionary[name]:
-        if refscope == obj["scope"]:
+        if len(refscope)==0 or refscope == obj["scope"]:
             matches.append(obj)
     return matches
 
