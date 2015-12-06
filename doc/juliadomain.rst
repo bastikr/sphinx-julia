@@ -1,13 +1,98 @@
 .. _julia-domain:
 
 Julia Domain
-------------
+============
 
 This extension provides a sphinx `domain <http://sphinx-doc.org/latest/domains.html>`_ for the Julia language using the name :obj:`jl`. A domain is basically a collection of `directives <http://sphinx-doc.org/latest/rest.html#directives>`_ and roles which define markup constructs that then can be rendered to different outputs like html and latex. E.g. the python domain provides the directives :obj:`py:class`, :obj:`py:exception`, :obj:`py:method`, :obj:`py:classmethod`, :obj:`py:staticmethod`, :obj:`py:attribute`, :obj:`py:module`, :obj:`py:currentmodule`, :obj:`py:decorator` and :obj:`py:decoratormethod`. Additionally it provides tools for indexing and cross-referencing these constructs.
 
 Reusing the python implementation is mostly not possible since the underlying model of Python and Julia are too different. E.g. Julia has no notion of methods associated to classes and therefore :obj:`py:method`, :obj:`py:classmethod`, :obj:`py:staticmethod` are all meaningless concepts. On the other hand Julia implements abstract types, type restraints and macros.
 
-At this early point of development :obj:`juliadomain` provides only a fraction of that functionality, i.e. only functions are supported through the :obj:`jl:function` directive.
+At this early point of development only four different :ref:`julia-domain-directives` and the corresponding :ref:`julia-domain-roles` used to create references to them are implemented.
+
+
+.. _julia-domain-directives:
+
+Directives
+----------
+
+Types
+^^^^^
+
+There are two directives :obj:`type` and :obj:`abstract` representing composite types and abstract types respectively. Both of them are rather straight forward to use. E.g.
+
+.. epigraph::
+
+    .. code-block:: rst
+
+        .. jl:abstract:: Theory
+
+            The general principles or ideas that relate to a particular subject
+
+        .. jl:type:: QuantumTheory <: Theory
+
+             A theory based on the idea that energy is made of small separate units of energy.
+
+is rendered as
+
+.. epigraph::
+
+    .. jl:abstract:: Theory
+
+        The general principles or ideas that relate to a particular subject.
+
+    .. jl:type:: QuantumTheory <: Theory
+
+        A theory based on the idea that energy is made of small separate units of energy.
+
+
+Modules
+^^^^^^^
+
+Modules are created by using the :obj:`module` directive and can be used to group other objects together. They can also be nested and provide a common namespace which is indicated by indentation and can be seen in the following example
+
+.. epigraph::
+
+    .. code-block:: rst
+
+        .. jl:module:: linalg
+
+            .. jl:abstract:: Array
+
+                General array type.
+
+            .. jl:module:: sparse
+
+                Sparse linear algebra functionality.
+
+                .. jl:type:: SparseMatrix <: Array
+
+                    Sparse matrix implementation.
+
+            .. jl:type:: Matrix <: Array
+
+                Dense matrix implementation.
+
+which gives the following output
+
+.. epigraph::
+
+    .. jl:module:: linalg
+
+        .. jl:abstract:: Array
+
+            General array type.
+
+        .. jl:module:: sparse
+
+            Sparse linear algebra functionality.
+
+            .. jl:type:: SparseMatrix <: Array
+
+                Sparse matrix implementation.
+
+        .. jl:type:: Matrix <: Array
+
+            Dense matrix implementation.
 
 
 Functions
@@ -76,3 +161,8 @@ gives the following output
         :kwparam state: It's a trap.
         :kwparam flag: Do. Or do not. There is no try.
 
+
+.. _julia-domain-roles:
+
+Roles
+-----

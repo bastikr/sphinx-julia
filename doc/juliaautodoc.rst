@@ -1,7 +1,7 @@
 .. _julia-autodoc:
 
 Julia Autodoc
--------------
+=============
 
 .. code-block:: julia
 

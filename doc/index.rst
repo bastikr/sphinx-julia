@@ -1,3 +1,4 @@
+============
 Sphinx-Julia
 ============
 
@@ -12,11 +13,11 @@ Sphinx-Julia provides two separate extensions for sphinx:
 
 
 Installation
-------------
+============
 
 
 PyPI - the Python Package Index
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------
 
 You can download the latest package from the official Python Package Index
 
@@ -24,7 +25,7 @@ https://pypi.python.org/pypi/Sphinx-Julia
 
 
 Source
-^^^^^^
+------
 
 Development happens on github (https://github.com/bastikr/sphinx-julia.git) and the source code can be obtained by
 
@@ -49,7 +50,7 @@ or alternatively add the path directly in the sphinx config file :file:`conf.py`
 
 
 Usage
-^^^^^
+-----
 
 To be able to actually use the functionality of these extensions in your documentation you have to specify this in the :file:`conf.py` file by adding :obj:`sphinxjulia.juliadomain` and :obj:`sphinxjulia.juliaautodoc` to the extensions list. If you docstrings in numpy or google style you can also add :obj:`sphinx.ext.napoleon` which will give much nicer output.
 
