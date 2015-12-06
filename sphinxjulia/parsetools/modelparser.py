@@ -115,7 +115,10 @@ def parse_functionstring(text):
     d = {}
     i_sig0 = text.find("(")
     i_sig1 = text.rfind(")")
-    assert i_sig0 != -1 and i_sig1 != -1 and i_sig0 < i_sig1
+    if i_sig0 == -1:
+        d["name"] = text
+        return d
+    assert i_sig0 < i_sig1
     i_templ0 = text.find("{")
     i_templ1 = text.find("}", i_templ0)
     if i_templ0 != -1 and i_templ0 < i_sig0:
@@ -124,7 +127,6 @@ def parse_functionstring(text):
         templateparameters = text[i_templ0+1:i_templ1].split(",")
         d["templateparameters"] = [t.strip() for t in templateparameters]
     else:
-        d["templateparameters"] = []
         name = text[:i_sig0].strip()
     if "." in name:
         modulename, name = name.rsplit(".", 1)
