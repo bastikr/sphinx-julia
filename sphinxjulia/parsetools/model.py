@@ -93,6 +93,9 @@ class Type(JuliaModelNode):
                   "fields": list, "constructors": list, "docstring": str}
 
 
+CompositeType = Type
+
+
 class Abstract(JuliaModelNode):
     __fields__ = {"name": str, "templateparameters": list, "parenttype": str,
                   "docstring": str}
