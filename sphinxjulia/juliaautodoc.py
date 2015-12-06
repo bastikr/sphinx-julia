@@ -1,59 +1,104 @@
 import os
-import docutils
-import sphinx.ext.napoleon
 
-from . import juliadomain
+from docutils import nodes
+from docutils.parsers.rst import Directive
+from docutils.statemachine import ViewList
+
+from . import model, modelparser, query
 
 
-class FunctionDirective(docutils.parsers.rst.Directive):
+class AutoDirective(Directive):
     has_content = False
     required_arguments = 2
-
-    def __init__(self, name, arguments, options, content, lineno,
-                content_offset, block_text, state, state_machine):
-        docutils.parsers.rst.Directive.__init__(
-                self, name, arguments, options, content, lineno,
-                content_offset, block_text, state, state_machine)
-        self._directive = juliadomain.JuliaFunction(
-                "function", ["<auto>"], {}, docutils.statemachine.ViewList(),
-                lineno, content_offset, block_text, state, state_machine)
+    optional_arguments = 0
+    final_argument_whitespace = False
 
     def run(self):
-        env = self.state.document.settings.env
-        sourcedir = env.app.config.juliaautodoc_basedir
-        sourcename = self.arguments[0]
-        sourcepath = os.path.join(sourcedir, sourcename)
-        functionname = self.arguments[1]
-        function = env.juliaparser.function_from_file(sourcepath, functionname)
-        docstringlines = function["docstring"].split("\n")
-        env.app.emit('autodoc-process-docstring',
-                                  "function", function["name"], None,
-                                  {}, docstringlines)
-        function["docstring"] = "\n".join(docstringlines)
-        self._directive.function = function
-        return self._directive.run()
+        if ':' in self.name:
+            self.domain, self.objtype = self.name.split(':', 1)
+        else:
+            self.domain, self.objtype = '', self.name
+        self.objtype = self.objtype[len("auto"):]
+        self.env = self.state.document.settings.env
+        sourcedir = self.env.app.config.juliaautodoc_basedir
+        self.sourcepath = os.path.join(sourcedir, self.arguments[0])
+        self.matches = []
+
+        # Load all julia objects from file
+        modulenode = self.env.juliaparser.parsefile(self.sourcepath)
+        # Store nodes matching the search pattern in self.matches
+        self.filter(modulenode)
+
+        scope = self.env.ref_context['jl:scope']
+        for node in self.matches:
+            # Set ids and register nodes in global index
+            query.walk_tree(node, self.register, scope)
+            # Add docstrings
+            query.walk_tree(node, self.docstring, scope)
+        return self.matches
+
+    def filter(self, modulenode):
+        self.pattern = modelparser.parse(self.objtype, self.arguments[1])
+        query.walk_tree(modulenode, self.match, scope=[])
+
+    def match(self, node, scope):
+        if query.match(self.pattern, node):
+            self.matches.append(node)
+
+    def register(self, node, scope):
+        if isinstance(node, model.JuliaModelNode):
+            objtype = type(node).__name__.lower()
+            node["ids"] = [node.uid(scope)]
+            dictionary = self.env.domaindata['jl'][objtype]
+            node["ids"] = [node.uid(scope)]
+            node.register(self.env.docname, scope, dictionary)
+
+    def docstring(self, node, scope):
+        docstringlines = node.docstring.split("\n")
+        self.env.app.emit('autodoc-process-docstring',
+                          'class', node["ids"][0], node, {}, docstringlines)
+        content = ViewList(docstringlines)
+        docstringnode = nodes.paragraph()
+        self.state.nested_parse(content, self.content_offset,
+                                docstringnode)
+        node.insert(0, docstringnode)
 
 
-# Ugly hack to use :kwparam: in napoleon docstring parsing.
-def _parse_keyword_arguments_section(self, section):
-    fields = self._consume_fields()
-    if self._config.napoleon_use_param:
-        lines = []
-        for _name, _type, _desc in fields:
-            field = ':kwparam %s: ' % _name
-            lines.extend(self._format_block(field, _desc))
-            if _type:
-                lines.append(':kwtype %s: %s' % (_name, _type))
-        return lines + ['']
-    else:
-        return self._format_fields('Keyword Parameters', fields)
+class AutoFileDirective(AutoDirective):
+    required_arguments = 1
 
-sphinx.ext.napoleon.docstring.GoogleDocstring._parse_keyword_arguments_section = _parse_keyword_arguments_section
+    def filter(self, modulenode):
+        # Take all elements of file
+        self.matches.extend(modulenode.children)
+
+
+class AutoModuleDirective(AutoDirective):
+    pass
+
+
+class AutoFunctionDirective(AutoDirective):
+    final_argument_whitespace = True
+
+
+class AutoType(AutoDirective):
+    pass
+
+
+class AutoAbstract(AutoDirective):
+    pass
 
 
 def setup(app):
+    # Config values
     app.add_config_value('juliaautodoc_basedir', '..', 'html')
-    app.add_directive('jl:autofunction', FunctionDirective)
+
+    # Directives
+    app.add_directive('jl:autofile', AutoFileDirective)
+    app.add_directive('jl:automodule', AutoModuleDirective)
+    app.add_directive('jl:autofunction', AutoFunctionDirective)
+    app.add_directive('jl:autotype', AutoType)
+    app.add_directive('jl:autoabstract', AutoAbstract)
+
+    # Events
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-skip-member')
-    return {'version': '0.1'}

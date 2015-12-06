@@ -1,7 +1,6 @@
 import docutils.utils
 
-import model
-import modelparser
+from . import model, modelparser
 
 
 def resolvescope(basescope, targetstring):

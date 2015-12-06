@@ -1,28 +1,87 @@
-.. autodoc-julia documentation master file, created by
-   sphinx-quickstart on Mon Nov 23 11:00:45 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Welcome to autodoc-julia's documentation!
 =========================================
 
-.. jl:function:: f(x,y)
 
-  Test faslfjsaldf
+Pythondomain
+------------
 
-  :param x: does shit
-  :param y: does also shit
-  :param x: bla
+.. py:module:: A
 
+.. py:method:: B
 
-.. jl:autofunction:: src/DormandPrince45.jl ode
+    Module B description.
 
-.. jl:autofunction:: src/DormandPrince45.jl interpolate
+.. py:class:: t
 
-.. jl:autofunction:: src/DormandPrince45.jl error_estimate
+    Type t.
 
-
-Indices and tables
-==================
+    asdsdfdsf
 
 
+
+Juliadomain
+-----------
+
+.. jl:module:: A
+
+    Module A description.
+
+    .. jl:module:: B
+
+        Module B description.
+
+        .. jl:abstract:: t
+
+            Type t.
+
+            asdsdfdsf
+
+        .. jl:function:: testfunc{S, T}(a::Int, b=1; c="z")
+
+
+Autofile example
+----------------
+
+.. jl:autofile:: example.jl
+
+
+Autofile example2
+-----------------
+
+.. jl:autofile:: example2.jl
+
+
+Autoabstract
+------------
+
+.. jl:autoabstract:: example.jl t
+
+
+Automodule
+----------
+
+.. jl:automodule:: example.jl B
+
+
+Autofunction
+------------
+
+.. jl:autofunction:: DormandPrince45.jl interpolate
+
+
+Autofile DormandPrince
+----------------------
+
+.. jl:autofile:: ../src/DormandPrince45.jl
+
+
+:jl:type:`DormandPrince45.CType`
+
+:jl:abstract:`AType`
+
+:jl:func:`testfunc`
+
+:jl:func:`DormandPrince45.ode`
+
+:jl:mod:`B`

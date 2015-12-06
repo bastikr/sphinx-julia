@@ -1,14 +1,10 @@
 import os
 import subprocess
-import model
+from . import model
 
-scriptdir = "scripts"
+scriptdir = "parsetools/scripts"
 scripts = {
     "file": "sourcefile2pythonmodel.jl",
-    "abstract": "parse_abstract.jl",
-    "type": "parse_type.jl",
-    "module": "parse_module.jl",
-    "function": "parse_function.jl"
 }
 
 eval_environment = {x: getattr(model, x) for x in dir(model) if not x.startswith("_")}
