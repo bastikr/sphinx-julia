@@ -26,8 +26,8 @@ class JuliaModel:
 class JuliaModelNode(JuliaModel, nodes.Element):
 
     def __init__(self, **kwargs):
-        JuliaModel.__init__(self, **kwargs)
         nodes.Element.__init__(self)
+        JuliaModel.__init__(self, **kwargs)
 
     def uid(self, scope):
         return ".".join(scope + [self.name])
