@@ -49,6 +49,9 @@ class JuliaModelNode(JuliaModel, nodes.Element):
 class Argument(JuliaModel):
     __fields__ = {"name":str, "argumenttype": str, "value": str}
 
+    def __str__(self):
+        return self.name + "::" + self.argumenttype + "=" + self.value
+
 
 class Signature(JuliaModel):
     __fields__ = {"positionalarguments": list, "optionalarguments": list,
@@ -56,16 +59,19 @@ class Signature(JuliaModel):
                   "varargs": (type(None), Argument),
                   "kwvarargs": (type(None), Argument)}
 
+    def __str__(self):
+        l = self.positionalarguments + self.optionalarguments\
+            + [self.varargs] + [";"] + self.positionalarguments + [self.kwvarargs]
+        return str([str(x) for x in l])
+
 
 class Function(JuliaModelNode):
     __fields__ = {"name": str, "modulename": str, "templateparameters": list,
                   "signature": Signature, "docstring": str}
-    hashfunc = hashlib.md5()
 
     def uid(self, scope):
         x = bytes(str(self.templateparameters) + str(self.signature), "UTF-16")
-        self.hashfunc.update(x)
-        name = self.name + "-" + self.hashfunc.hexdigest()
+        name = self.name + "-" + hashlib.md5(x).hexdigest()
         return ".".join(scope + [name])
 
     def register(self, docname, scope, dictionary):
