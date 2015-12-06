@@ -32,14 +32,14 @@ class AutoDirective(Directive):
         scope = self.env.ref_context['jl:scope']
         for node in self.matches:
             # Set ids and register nodes in global index
-            query.catalog_tree(node, self.register, scope)
+            query.walk_tree(node, self.register, scope)
             # Add docstrings
-            query.catalog_tree(node, self.docstring, scope)
+            query.walk_tree(node, self.docstring, scope)
         return self.matches
 
     def filter(self, modulenode):
         self.pattern = modelparser.parse(self.objtype, self.arguments[1])
-        query.catalog_tree(modulenode, self.match, scope=[])
+        query.walk_tree(modulenode, self.match, scope=[])
 
     def match(self, node, scope):
         if query.match(self.pattern, node):

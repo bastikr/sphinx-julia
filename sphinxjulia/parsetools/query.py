@@ -110,7 +110,7 @@ def find_object_by_string(objtype, basescope, targetstring, dictionaries):
     return matches
 
 
-class Catalog:
+class NodeWalker:
 
     def __init__(self, scope, document, callback):
         self.scope = scope
@@ -133,8 +133,7 @@ class Catalog:
             self.scope.pop()
 
 
-def catalog_tree(node, callback, scope):
+def walk_tree(node, callback, scope):
     document = docutils.utils.new_document("")
-    c = Catalog(scope, document, callback)
-    node.walkabout(c)
-    return c
+    walker = NodeWalker(scope, document, callback)
+    node.walkabout(walker)
