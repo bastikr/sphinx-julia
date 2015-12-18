@@ -3,6 +3,9 @@ import os
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
+from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docfields import DocFieldTransformer
+from sphinx.locale import l_
 
 from . import model, modelparser, query
 
@@ -12,6 +15,8 @@ class AutoDirective(Directive):
     required_arguments = 2
     optional_arguments = 0
     final_argument_whitespace = False
+
+    doc_field_types = []
 
     def run(self):
         if ':' in self.name:
@@ -61,6 +66,7 @@ class AutoDirective(Directive):
         docstringnode = nodes.paragraph()
         self.state.nested_parse(content, self.content_offset,
                                 docstringnode)
+        DocFieldTransformer(self).transform_all(docstringnode)
         node.insert(0, docstringnode)
 
 
@@ -78,6 +84,24 @@ class AutoModuleDirective(AutoDirective):
 
 class AutoFunctionDirective(AutoDirective):
     final_argument_whitespace = True
+
+    doc_field_types = [
+        TypedField('parameter', label=l_('Parameters'),
+                   names=('param', 'parameter', 'arg', 'argument'),
+                   typerolename='obj', typenames=('paramtype', 'type'),
+                   can_collapse=True),
+        TypedField('kwparam', label=l_('Keyword Parameters'),
+                   names=('kwparam', 'kwparameter', 'kwarg', 'kwargument'),
+                   typerolename='obj', typenames=('kwparamtype', 'kwtype'),
+                   can_collapse=True),
+        GroupedField('exceptions', label=l_('Exceptions'), rolename='exc',
+                     names=('raises', 'raise', 'exception', 'except'),
+                     can_collapse=True),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+        Field('returntype', label=l_('Return type'), has_arg=False,
+              names=('rtype',), bodyrolename='obj'),
+    ]
 
 
 class AutoType(AutoDirective):
