@@ -26,7 +26,7 @@ def match_argument(pattern, argument):
 def match_signature(pattern, signature):
     parguments = pattern.positionalarguments + pattern.optionalarguments
     farguments = signature.positionalarguments + signature.optionalarguments
-    if len(parguments) != len(parguments):
+    if len(parguments) != len(farguments):
         return False
     for i in range(len(parguments)):
         if not match_argument(parguments[i], farguments[i]):
