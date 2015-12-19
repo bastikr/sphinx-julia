@@ -54,12 +54,27 @@ def parse_modulestring(text):
     return model.Module(name=text)
 
 
+def typestring2dict(text):
+    d = {}
+    if "<:" in text:
+        text, parenttype = text.split("<:", 1)
+        d["parenttype"] = parenttype.strip()
+    if "{" in text:
+        text, templ = text.split("{", 1)
+        templ = templ.strip()
+        assert templ[-1] == "}"
+        templateparameters = templ[:-1].split(",")
+        d["templateparameters"] = [t.strip() for t in templateparameters]
+    d["name"] = text.strip()
+    return d
+
+
 def parse_abstractstring(text):
-    return model.Abstract(name=text)
+    return model.Abstract(**typestring2dict(text))
 
 
 def parse_typestring(text):
-    return model.Type(name=text)
+    return model.Type(**typestring2dict(text))
 
 
 def parse_argumentstring(text):
@@ -73,12 +88,24 @@ def parse_argumentstring(text):
     return model.Argument(name=text.strip(), **d)
 
 
+def _appendargument(d, argstring, argtype):
+    if argstring.endswith("..."):
+        arg = parse_argumentstring(argstring[:-3])
+        if argtype == "positionalarguments":
+            d["varargs"] = arg
+        else:
+            d["kwvarargs"] = arg
+    else:
+        d[argtype].append(parse_argumentstring(argstring))
+
+
 def parse_signaturestring(text):
+    text = text.strip()
     d = {
         "positionalarguments": [],
         "keywordarguments": [],
     }
-    argumenttype = "positionalarguments"
+    argtype = "positionalarguments"
     i_start = 0
     i = 0
     while i < len(text):
@@ -88,22 +115,13 @@ def parse_signaturestring(text):
             assert i_closing != -1
             i = i_closing
         elif x == ";":
-            argumenttype = "keywordarguments"
-        elif x == "," or i+1 == len(text):
-            if x == ",":
-                argstring = text[i_start:i].strip()
-            else:
-                argstring = text[i_start:i+1].strip()
-            if argstring.endswith("..."):
-                arg = parse_argumentstring(argstring[:-3])
-                if argumenttype == "positionalarguments":
-                    d["varargs"] = arg
-                else:
-                    d["kwvarargs"] = arg
-            else:
-                d[argumenttype].append(parse_argumentstring(argstring))
+            argtype = "keywordarguments"
+        elif x == ",":
+            _appendargument(d, text[i_start:i].strip(), argtype)
             i_start = i+1
         i += 1
+    if text[-1] != ";":
+        _appendargument(d, text[i_start:].strip(), argtype)
     return model.Signature(**d)
 
 
