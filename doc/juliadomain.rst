@@ -118,7 +118,7 @@ Additional text in the body of the directive can be used for documentation of th
 
     .. code-block:: rst
 
-        .. jl:function:: f(a)
+        .. jl:function:: f(a::Int, b=1)
 
             Detailed explanation of everything.
 
@@ -126,7 +126,7 @@ and looks like
 
 .. epigraph::
 
-    .. jl:function:: f(a)
+    .. jl:function:: f(a::Int, b=1)
 
         Detailed explanation of everything.
 
@@ -166,3 +166,12 @@ gives the following output
 
 Roles
 -----
+
+Every directive introduced above can be referenced via the roles :obj:`type`, :obj:`abstract`, :obj:`mod` and :obj:`func`.
+
+Using ``:jl:type:`Matrix``` (:jl:type:`Matrix`) and ``:jl:abstract:`Array``` (:jl:abstract:`Array`) creates references to these types .
+
+Targets can be referenced fully qualified ``:jl:mod:`linalg.sparse``` or shortened as ``:jl:mod:`sparse```.
+
+Functions are in the simplest case identified just by their name, e.g. ``:jl:func:`myfunc``` (:jl:func:`myfunc`). In order to distinguish between methods of the same name one can additionally use pattern matching like ``:jl:func:`f(a)``` (:jl:func:`f(a)`), ``:jl:func:`f(a,b)``` (:jl:func:`f(a,b)`), ``:jl:func:`f(a::Int,)``` (:jl:func:`f(a::Int,)`) or ``:jl:func:`f(,=1)``` (:jl:func:`f(,=1)`).
+
