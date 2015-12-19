@@ -101,6 +101,8 @@ def _appendargument(d, argstring, argtype):
 
 def parse_signaturestring(text):
     text = text.strip()
+    if len(text) == 0:
+        return model.Signature()
     d = {
         "positionalarguments": [],
         "keywordarguments": [],

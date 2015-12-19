@@ -25,6 +25,9 @@ def match_argument(pattern, argument):
 
 def match_signature(pattern, signature):
     parguments = pattern.positionalarguments + pattern.optionalarguments
+    if len(parguments) == len(pattern.keywordarguments) == 0 and\
+       pattern.varargs is None and pattern.kwvarargs is None:
+        return True
     farguments = signature.positionalarguments + signature.optionalarguments
     if len(parguments) != len(farguments):
         return False
