@@ -155,15 +155,15 @@
 </div>
 <div class="section" id="source">
 <h3>Source<a class="headerlink" href="#source" title="Permalink to this headline">¶</a></h3>
-<p>Development happens on github (<a class="reference external" href="https://github.com/bastikr/sphinx-julia.git">https://github.com/bastikr/sphinx-julia.git</a>) and the source code can be obtained by</p>
+<p>Development happens on github (<a class="reference external" href="https://github.com/bastikr/sphinx-julia.git">https://github.com/bastikr/sphinx-julia.git</a>) and the source code can be obtained usinge the command</p>
 <div class="highlight-bash"><div class="highlight"><pre>&gt;&gt; git clone https://github.com/bastikr/sphinx-julia.git
 </pre></div>
 </div>
-<p>Make sure sphinx can find the extensions by either adding this repository to the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">PATHONPATH</span></code> e.g.</p>
+<p>Make sure sphinx can find the extensions by either adding this repository to the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></code> e.g.</p>
 <div class="highlight-bash"><div class="highlight"><pre>&gt;&gt; <span class="nb">export </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:~/sphinx-julia
 </pre></div>
 </div>
-<p>or alternatively add the path directly in the sphinx config file <code class="file docutils literal"><span class="pre">conf.py</span></code></p>
+<p>or alternatively adding the path directly in the sphinx config file <code class="file docutils literal"><span class="pre">conf.py</span></code></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># conf.py</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -173,7 +173,7 @@
 </div>
 <div class="section" id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
-<p>To be able to actually use the functionality of these extensions in your documentation you have to specify this in the <code class="file docutils literal"><span class="pre">conf.py</span></code> file by adding <code class="xref py py-obj docutils literal"><span class="pre">sphinxjulia.juliadomain</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">sphinxjulia.juliaautodoc</span></code> to the extensions list. If you docstrings in numpy or google style you can also add <code class="xref py py-obj docutils literal"><span class="pre">sphinx.ext.napoleon</span></code> which will give much nicer output.</p>
+<p>To use these extensions you have to specify this in the <code class="file docutils literal"><span class="pre">conf.py</span></code> file by adding <code class="xref py py-obj docutils literal"><span class="pre">sphinxjulia.juliadomain</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">sphinxjulia.juliaautodoc</span></code> to the extensions list. If you have docstrings in numpy or google style you can also add <code class="xref py py-obj docutils literal"><span class="pre">sphinx.ext.napoleon</span></code> which will give much nicer output.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s">&#39;sphinxjulia.juliadomain&#39;</span><span class="p">,</span>
     <span class="s">&#39;sphinxjulia.juliaautodoc&#39;</span><span class="p">,</span>

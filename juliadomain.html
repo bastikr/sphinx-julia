@@ -84,7 +84,13 @@
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Sphinx-Julia</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Julia Domain</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#julia-domain-directives">Directives</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#types">Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modules">Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#roles">Roles</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="juliaautodoc.html">Julia Autodoc</a></li>
@@ -136,34 +142,80 @@
 <span id="id1"></span><h1>Julia Domain<a class="headerlink" href="#julia-domain" title="Permalink to this headline">¶</a></h1>
 <p>This extension provides a sphinx <a class="reference external" href="http://sphinx-doc.org/latest/domains.html">domain</a> for the Julia language using the name <code class="xref py py-obj docutils literal"><span class="pre">jl</span></code>. A domain is basically a collection of <a class="reference external" href="http://sphinx-doc.org/latest/rest.html#directives">directives</a> and roles which define markup constructs that then can be rendered to different outputs like html and latex. E.g. the python domain provides the directives <code class="xref py py-obj docutils literal"><span class="pre">py:class</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:exception</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:method</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:classmethod</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:staticmethod</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:attribute</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:module</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:currentmodule</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:decorator</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">py:decoratormethod</span></code>. Additionally it provides tools for indexing and cross-referencing these constructs.</p>
 <p>Reusing the python implementation is mostly not possible since the underlying model of Python and Julia are too different. E.g. Julia has no notion of methods associated to classes and therefore <code class="xref py py-obj docutils literal"><span class="pre">py:method</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:classmethod</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">py:staticmethod</span></code> are all meaningless concepts. On the other hand Julia implements abstract types, type restraints and macros.</p>
-<p>At this early point of development <code class="xref py py-obj docutils literal"><span class="pre">juliadomain</span></code> provides only a fraction of that functionality, i.e. only functions are supported through the <code class="xref py py-obj docutils literal"><span class="pre">jl:function</span></code> directive.</p>
-<div class="section" id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
-<p>Using the directive <code class="xref py py-obj docutils literal"><span class="pre">jl:function</span></code> allows us to define a function by giving the functions signature as argument. The simple example</p>
-<div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a)
+<div class="section" id="julia-domain-directives">
+<span id="id2"></span><h2>Directives<a class="headerlink" href="#julia-domain-directives" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="types">
+<h3>Types<a class="headerlink" href="#types" title="Permalink to this headline">¶</a></h3>
+<p>There are two directives <code class="xref py py-obj docutils literal"><span class="pre">type</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">abstract</span></code> representing composite types and abstract types respectively. Both of them are rather straight forward to use. E.g.</p>
+<blockquote class="epigraph">
+<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:abstract</span><span class="p">::</span> Theory
+
+    The general principles or ideas that relate to a particular subject
+
+<span class="p">..</span> <span class="ow">jl:type</span><span class="p">::</span> QuantumTheory &lt;: Theory
+
+     A theory based on the idea that energy is made of small separate units of energy.
 </pre></div>
 </div>
-<p>renders as</p>
-<dl class="function">
-<dt>
-<code class="descname">f</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+</div></blockquote>
+<p>is rendered as</p>
+<blockquote class="epigraph">
+<div><dl class="class"><dt id=Theory><em class="property">abstract </em><code class="descname">Theory</code><a class="headerlink" href="#Theory" title="Permalink to thisabstract">¶</a></dt><dd class="body">The general principles or ideas that relate to a particular subject.</dd></dl><dl class="class"><dt id=QuantumTheory><em class="property">type </em><code class="descname">QuantumTheory<: Theory</code><a class="headerlink" href="#QuantumTheory" title="Permalink to thistype">¶</a></dt><dd class="body">A theory based on the idea that energy is made of small separate units of energy.</dd></dl></div></blockquote>
+</div>
+<div class="section" id="modules">
+<h3>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h3>
+<p>Modules are created by using the <code class="xref py py-obj docutils literal"><span class="pre">module</span></code> directive and can be used to group other objects together. They can also be nested and provide a common namespace which is indicated by indentation and can be seen in the following example</p>
+<blockquote class="epigraph">
+<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:module</span><span class="p">::</span> linalg
 
+<span class="p">    ..</span> <span class="ow">jl:abstract</span><span class="p">::</span> Array
+
+        General array type.
+
+<span class="p">    ..</span> <span class="ow">jl:module</span><span class="p">::</span> sparse
+
+        Sparse linear algebra functionality.
+
+<span class="p">        ..</span> <span class="ow">jl:type</span><span class="p">::</span> SparseMatrix &lt;: Array
+
+            Sparse matrix implementation.
+
+<span class="p">    ..</span> <span class="ow">jl:type</span><span class="p">::</span> Matrix &lt;: Array
+
+        Dense matrix implementation.
+</pre></div>
+</div>
+</div></blockquote>
+<p>which gives the following output</p>
+<blockquote class="epigraph">
+<div><dl class="class"><dt id=linalg><em class="property">module </em><code class="descname">linalg</code><a class="headerlink" href="#linalg" title="Permalink to thismodule">¶</a></dt><dd class="body"><dl class="class"><dt id=linalg.Array><em class="property">abstract </em><code class="descname">Array</code><a class="headerlink" href="#linalg.Array" title="Permalink to thisabstract">¶</a></dt><dd class="body">General array type.</dd></dl><dl class="class"><dt id=linalg.sparse><em class="property">module </em><code class="descname">sparse</code><a class="headerlink" href="#linalg.sparse" title="Permalink to thismodule">¶</a></dt><dd class="body"><p>Sparse linear algebra functionality.</p>
+<dl class="class"><dt id=linalg.sparse.SparseMatrix><em class="property">type </em><code class="descname">SparseMatrix<: Array</code><a class="headerlink" href="#linalg.sparse.SparseMatrix" title="Permalink to thistype">¶</a></dt><dd class="body">Sparse matrix implementation.</dd></dl></dd></dl><dl class="class"><dt id=linalg.Matrix><em class="property">type </em><code class="descname">Matrix<: Array</code><a class="headerlink" href="#linalg.Matrix" title="Permalink to thistype">¶</a></dt><dd class="body">Dense matrix implementation.</dd></dl></dd></dl></div></blockquote>
+</div>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<p>Using the directive <code class="xref py py-obj docutils literal"><span class="pre">jl:function</span></code> allows us to define a function by giving the functions signature as argument. The simple example</p>
+<blockquote class="epigraph">
+<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a)
+</pre></div>
+</div>
+</div></blockquote>
+<p>renders as</p>
+<blockquote class="epigraph">
+<div><dl class="function"><dt id="f-23052c2a4a3c418a2aa425ea871a6a2a"><em class="property">function </em><code class="descname">f</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#f-23052c2a4a3c418a2aa425ea871a6a2a" title="Permalink to this function">¶</a></dt><dd></dd></dl></div></blockquote>
 <p>Additional text in the body of the directive can be used for documentation of the function</p>
-<div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a)
+<blockquote class="epigraph">
+<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a::Int, b=1)
 
     Detailed explanation of everything.
 </pre></div>
 </div>
+</div></blockquote>
 <p>and looks like</p>
-<dl class="function">
-<dt>
-<code class="descname">f</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span></dt>
-<dd><p>Detailed explanation of everything.</p>
-</dd></dl>
-
-<p>Also more complicated signatures are no problem and also most of the roles defined for the python domain can be used allowing for a nice description of the parameters. E.g.</p>
-<div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> myfunc{T}(a::T, b=1; state=&quot;Foo&quot;, flag::Boolean, kwargs...)
+<blockquote class="epigraph">
+<div><dl class="function"><dt id="f-d1aaa8a4fedd6c759e719ff90451d745"><em class="property">function </em><code class="descname">f</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="Permalink to this function">¶</a></dt><dd>Detailed explanation of everything.</dd></dl></div></blockquote>
+<p>Also more complicated signatures are possible and also most of the roles defined for the python domain can be used allowing for a nice description of the parameters. E.g.</p>
+<blockquote class="epigraph">
+<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> myfunc{T}(a::T, b=1; state=&quot;Foo&quot;, flag::Boolean, kwargs...)
 
     Solve all the things.
 
@@ -174,17 +226,16 @@
     <span class="nc">:kwparam flag:</span> <span class="nf">Do. Or do not. There is no try.</span>
 </pre></div>
 </div>
+</div></blockquote>
 <p>gives the following output</p>
-<dl class="function">
-<dt>
-<code class="descname">myfunc{T}</code><span class="sig-paren">(</span><em>a::T</em>, <em>b=1</em>; <em>state=Foo</em>, <em>flag=True</em>, <em>kwargs...</em><span class="sig-paren">)</span></dt>
-<dd><p>Solve all the things.</p>
+<blockquote class="epigraph">
+<div><dl class="function"><dt id="myfunc-9664abe57ba710674d12129804146af7"><em class="property">function </em><code class="descname">myfunc{T}</code><span class="sig-paren">(</span><em>a</em>; <em>b</em>, <em>flag</em><span class="sig-paren">)</span><a class="headerlink" href="#myfunc-9664abe57ba710674d12129804146af7" title="Permalink to this function">¶</a></dt><dd><p>Solve all the things.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>a</strong> (<code class="xref py py-class docutils literal"><span class="pre">T</span></code>) &#8211; Very important parameter</li>
+<li><strong>a</strong> (<em>T</em>) &#8211; Very important parameter</li>
 <li><strong>b</strong> &#8211; Not so important parameter</li>
 </ul>
 </td>
@@ -198,8 +249,15 @@
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
+</dd></dl></div></blockquote>
+</div>
+</div>
+<div class="section" id="roles">
+<span id="julia-domain-roles"></span><h2>Roles<a class="headerlink" href="#roles" title="Permalink to this headline">¶</a></h2>
+<p>Every directive introduced above can be referenced via the roles <code class="xref py py-obj docutils literal"><span class="pre">type</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">abstract</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">mod</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">func</span></code>.</p>
+<p>Using <code class="docutils literal"><span class="pre">:jl:type:`Matrix`</span></code> (<a class="reference internal" href="#linalg.Matrix" title="Matrix"><code class="xref jl jl-type docutils literal"><span class="pre">Matrix</span></code></a>) and <code class="docutils literal"><span class="pre">:jl:abstract:`Array`</span></code> (<a class="reference internal" href="#linalg.Array" title="Array"><code class="xref jl jl-abstract docutils literal"><span class="pre">Array</span></code></a>) creates references to these types .</p>
+<p>Targets can be referenced fully qualified <code class="docutils literal"><span class="pre">:jl:mod:`linalg.sparse`</span></code> or shortened as <code class="docutils literal"><span class="pre">:jl:mod:`sparse`</span></code>.</p>
+<p>Functions are in the simplest case identified just by their name, e.g. <code class="docutils literal"><span class="pre">:jl:func:`myfunc`</span></code> (<a class="reference internal" href="#myfunc-9664abe57ba710674d12129804146af7" title="myfunc"><code class="xref jl jl-func docutils literal"><span class="pre">myfunc</span></code></a>). In order to distinguish between methods of the same name one can additionally use pattern matching like <code class="docutils literal"><span class="pre">:jl:func:`f(a)`</span></code> (<a class="reference internal" href="#f-23052c2a4a3c418a2aa425ea871a6a2a" title="f(a)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a)</span></code></a>), <code class="docutils literal"><span class="pre">:jl:func:`f(a,b)`</span></code> (<a class="reference internal" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="f(a,b)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a,b)</span></code></a>), <code class="docutils literal"><span class="pre">:jl:func:`f(a::Int,)`</span></code> (<a class="reference internal" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="f(a::Int,)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a::Int,)</span></code></a>) or <code class="docutils literal"><span class="pre">:jl:func:`f(,=1)`</span></code> (<a class="reference internal" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="f(,=1)"><code class="xref jl jl-func docutils literal"><span class="pre">f(,=1)</span></code></a>).</p>
 </div>
 </div>
 

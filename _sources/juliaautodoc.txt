@@ -1,38 +1,86 @@
 .. _julia-autodoc:
 
 Julia Autodoc
--------------
+=============
 
-.. code-block:: julia
+The autodoc extension is used to automatically extract documentation from source code. Contrary to its python equivalent where introspection is used to obtain the necessary information julia autodoc is file based. This means that the filename where the documented object is defined has to be stated explicitly.
 
-    # examples/example.jl
-    """
-    Solve all the things.
+The usage of the autodoc extension will be explained using the following file as example
 
-    Parameters
-    ----------
-    a
-        Very important parameter.
-    b
-        Not so important parameter
+.. epigraph::
 
-    Keyword Parameters
-    ------------------
-    state
-        It's a trap.
-    flag
-        Do. Or do not. There is no try.
-    """
-    function myfunc{T}(a::T, b=1; state="Foo", flag::Boolean=True, kwargs...)
-        # Do stuff
-        return a + b + state + flag + kwargs
-    end
+    .. code-block:: julia
+
+        # examples/example.jl
+        """
+        Symbolic mathematical computation library.
+        """
+
+        abstract MathObject
+
+        type Symbol <: MathObject
+            name::AbstractString
+        end
+
+        type Sum <: MathObject
+            args::Vector{Symbol}
+        end
+
+        """
+        Add two symbols.
+
+        Arguments
+        ---------
+        a
+            First argument.
+        b
+            Second argument.
+        """
+        function add{T}(a::T, b::T)
+            return Sum(Symbol[a, b])
+        end
+
+The whole content of the file can automatically be imported into the documentation using the :obj:`:jl:autofile` directive.
+
+.. epigraph::
+
+    .. code-block:: rst
+
+        .. jl:autofile:: examples/example.jl
+
+.. epigraph::
+
+    .. jl:autofile:: examples/example.jl
+
+To document only specific parts of the file one can use the directives :obj:`jl:automodule`, :obj:`jl:autofunction`, :obj:`jl:autotype` and :obj:`jl:autoabstract`.
+
+.. epigraph::
+
+    .. code-block:: rst
+
+        .. jl:autofunction:: examples/example.jl add
+
+.. epigraph::
+
+    .. jl:autofunction:: examples/example.jl add
+
+.. epigraph::
+
+    .. code-block:: rst
+
+        .. jl:autoabstract:: examples/example.jl MathObject
+
+.. epigraph::
+
+    .. jl:autoabstract:: examples/example.jl MathObject
 
 
-.. code-block:: rst
+.. epigraph::
 
-    .. jl:autofunction:: examples/example.jl myfunc
+    .. code-block:: rst
 
+        .. jl:autotype:: examples/example.jl Sum
 
-.. jl:autofunction:: examples/example.jl myfunc
+.. epigraph::
 
+    .. jl:autotype:: examples/example.jl Sum
