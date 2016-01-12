@@ -27,19 +27,19 @@ https://pypi.python.org/pypi/Sphinx-Julia
 Source
 ------
 
-Development happens on github (https://github.com/bastikr/sphinx-julia.git) and the source code can be obtained by
+Development happens on github (https://github.com/bastikr/sphinx-julia.git) and the source code can be obtained usinge the command
 
 .. code-block:: bash
 
     >> git clone https://github.com/bastikr/sphinx-julia.git
 
-Make sure sphinx can find the extensions by either adding this repository to the :envvar:`PATHONPATH` e.g.
+Make sure sphinx can find the extensions by either adding this repository to the :envvar:`PYTHONPATH` e.g.
 
 .. code-block:: bash
 
     >> export PYTHONPATH=$PYTHONPATH:~/sphinx-julia
 
-or alternatively add the path directly in the sphinx config file :file:`conf.py`
+or alternatively adding the path directly in the sphinx config file :file:`conf.py`
 
 .. code-block:: python
 
@@ -52,7 +52,7 @@ or alternatively add the path directly in the sphinx config file :file:`conf.py`
 Usage
 -----
 
-To be able to actually use the functionality of these extensions in your documentation you have to specify this in the :file:`conf.py` file by adding :obj:`sphinxjulia.juliadomain` and :obj:`sphinxjulia.juliaautodoc` to the extensions list. If you docstrings in numpy or google style you can also add :obj:`sphinx.ext.napoleon` which will give much nicer output.
+To use these extensions you have to specify this in the :file:`conf.py` file by adding :obj:`sphinxjulia.juliadomain` and :obj:`sphinxjulia.juliaautodoc` to the extensions list. If you have docstrings in numpy or google style you can also add :obj:`sphinx.ext.napoleon` which will give much nicer output.
 
 .. code-block:: python
 

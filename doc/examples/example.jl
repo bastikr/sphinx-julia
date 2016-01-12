@@ -1,22 +1,27 @@
-# examples/example.jl
 """
-Solve all the things.
+Symbolic mathematical computation library.
+"""
+
+abstract MathObject
+
+type Symbol <: MathObject
+    name::AbstractString
+end
+
+type Sum <: MathObject
+    args::Vector{Symbol}
+end
+
+"""
+Add two symbols.
 
 Arguments
 ---------
 a
-    Very important parameter.
+    First argument.
 b
-    Not so important parameter
-
-Keyword Arguments
------------------
-state
-    It's a trap.
-flag
-    Do. Or do not. There is no try.
+    Second argument.
 """
-function myfunc{T}(a::T, b=1; state="Foo", flag::Boolean=True, kwargs...)
-    # Do stuff
-    return a + b + state + flag + kwargs
+function add{T}(a::T, b::T)
+    return Sum(Symbol[a, b])
 end

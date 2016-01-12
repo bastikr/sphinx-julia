@@ -7,8 +7,6 @@ This extension provides a sphinx `domain <http://sphinx-doc.org/latest/domains.h
 
 Reusing the python implementation is mostly not possible since the underlying model of Python and Julia are too different. E.g. Julia has no notion of methods associated to classes and therefore :obj:`py:method`, :obj:`py:classmethod`, :obj:`py:staticmethod` are all meaningless concepts. On the other hand Julia implements abstract types, type restraints and macros.
 
-At this early point of development only four different :ref:`julia-domain-directives` and the corresponding :ref:`julia-domain-roles` used to create references to them are implemented.
-
 
 .. _julia-domain-directives:
 
@@ -131,7 +129,7 @@ and looks like
         Detailed explanation of everything.
 
 
-Also more complicated signatures are no problem and also most of the roles defined for the python domain can be used allowing for a nice description of the parameters. E.g.
+Also more complicated signatures are possible and also most of the roles defined for the python domain can be used allowing for a nice description of the parameters. E.g.
 
 .. epigraph::
 
