@@ -33,6 +33,11 @@ class AutoDirective(Directive):
         modulenode = self.env.juliaparser.parsefile(self.sourcepath)
         # Store nodes matching the search pattern in self.matches
         self.filter(modulenode)
+        if len(self.matches) == 0:
+            args = self.arguments
+            raise ValueError('No matches for directive "{}" in '
+                             ' file "{}" with arguments {}'.format(
+                                    self.objtype, args[0], str(args[1:])))
 
         scope = self.env.ref_context.get('jl:scope', [])
         for node in self.matches:
