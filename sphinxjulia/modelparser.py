@@ -14,8 +14,11 @@ class JuliaParser:
     cached_files = {}
 
     def parsefile(self, sourcepath):
+        sourcepath = os.path.realpath(sourcepath)
         if not os.path.exists(sourcepath):
             raise ValueError("Can't find file: " + sourcepath)
+        if sourcepath in self.cached_files:
+            return self.cached_files[sourcepath]
         directory = os.path.dirname(os.path.realpath(__file__))
         scriptpath = os.path.join(directory, scriptdir, scripts["file"])
         p = subprocess.Popen(["julia", scriptpath, sourcepath],
