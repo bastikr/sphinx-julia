@@ -16,7 +16,23 @@ class AutoDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = False
 
-    doc_field_types = []
+    doc_field_types = [
+        TypedField('parameter', label=l_('Parameters'),
+                   names=('param', 'parameter', 'arg', 'argument'),
+                   typerolename='obj', typenames=('paramtype', 'type'),
+                   can_collapse=True),
+        TypedField('kwparam', label=l_('Keyword Parameters'),
+                   names=('kwparam', 'kwparameter', 'kwarg', 'kwargument'),
+                   typerolename='obj', typenames=('kwparamtype', 'kwtype'),
+                   can_collapse=True),
+        GroupedField('exceptions', label=l_('Exceptions'), rolename='exc',
+                     names=('raises', 'raise', 'exception', 'except'),
+                     can_collapse=True),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+        Field('returntype', label=l_('Return type'), has_arg=False,
+              names=('rtype',), bodyrolename='obj'),
+    ]
 
     def run(self):
         if ':' in self.name:
@@ -89,24 +105,6 @@ class AutoModuleDirective(AutoDirective):
 
 class AutoFunctionDirective(AutoDirective):
     final_argument_whitespace = True
-
-    doc_field_types = [
-        TypedField('parameter', label=l_('Parameters'),
-                   names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='obj', typenames=('paramtype', 'type'),
-                   can_collapse=True),
-        TypedField('kwparam', label=l_('Keyword Parameters'),
-                   names=('kwparam', 'kwparameter', 'kwarg', 'kwargument'),
-                   typerolename='obj', typenames=('kwparamtype', 'kwtype'),
-                   can_collapse=True),
-        GroupedField('exceptions', label=l_('Exceptions'), rolename='exc',
-                     names=('raises', 'raise', 'exception', 'except'),
-                     can_collapse=True),
-        Field('returnvalue', label=l_('Returns'), has_arg=False,
-              names=('returns', 'return')),
-        Field('returntype', label=l_('Return type'), has_arg=False,
-              names=('rtype',), bodyrolename='obj'),
-    ]
 
 
 class AutoType(AutoDirective):
