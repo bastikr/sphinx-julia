@@ -8,8 +8,7 @@ from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docfields import DocFieldTransformer
-
-from . import model, modelparser, translators, query
+from . import model, modelparser, translators_html, translators_latex, query
 
 
 class JuliaDirective(Directive):
@@ -72,6 +71,23 @@ class Function(JuliaDirective):
         Field('returntype', label=l_('Return type'), has_arg=False,
               names=('rtype',), bodyrolename='obj'),
     ]
+# <<<<<<< Updated upstream
+# =======
+
+#     def before_content(self):
+#         print()
+#         print("is called")
+#         env = self.state.document.settings.env
+#         #if env.config.julia_docstring_show_type:
+#         l = []
+#         for arg in self.function["arguments"]:
+#             if arg["type"]:
+#                 l.append(":type {name}: :class:`{type}`\n".format(**arg))
+#         for arg in self.function["kwarguments"]:
+#             if arg["type"]:
+#                 l.append(":kwtype {name}: :class:`{type}`\n".format(**arg))
+#         self.content.append(ViewList(l))
+# >>>>>>> Stashed changes
 
 
 class Abstract(JuliaDirective):
@@ -182,10 +198,12 @@ def setup(app):
     # app.add_config_value('julia_docstring_show_type', True, 'html')
 
     for name in ["Module", "Abstract", "Type", "Function"]:
-        translator = translators.TranslatorFunctions[name]
+        htmltranslator = translators_html.TranslatorFunctions[name]
+        latextranslator = translators_latex.TranslatorFunctions[name]
         modelclass = getattr(model, name)
         app.add_node(modelclass,
-                     html=translator
+                     html=htmltranslator,
+                     latex=latextranslator,
                      )
     app.connect('builder-inited', update_builder)
     app.add_domain(JuliaDomain)

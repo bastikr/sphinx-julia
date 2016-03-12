@@ -22,6 +22,16 @@ class JuliaModel:
     def from_string(cls, env, text):
         return cls(env, name=text)
 
+    def deepcopy(self):
+        kwargs = {}
+        for fieldname in self.__fields__:
+            attr = getattr(self, fieldname)
+            if hasattr(attr, "deepcopy"):
+                kwargs[fieldname] = attr.deepcopy()
+            else:
+                kwargs[fieldname] = attr
+        return self.__class__(**kwargs)
+
 
 class JuliaModelNode(JuliaModel, nodes.Element):
 
@@ -44,6 +54,12 @@ class JuliaModelNode(JuliaModel, nodes.Element):
             "uid": self.uid(scope)
         }
         entries.append(entry)
+
+    def deepcopy(self):
+        obj = JuliaModel.deepcopy(self)
+        obj["ids"] = self["ids"].copy()
+        obj.children = [c.deepcopy() for c in self.children]
+        return obj
 
 
 class Argument(JuliaModel):
