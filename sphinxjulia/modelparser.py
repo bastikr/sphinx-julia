@@ -172,7 +172,7 @@ def find_closing_bracket(text, start, openbracket):
             counter -= 1
         if counter == 0:
             return i
-        return -1
+    return -1
 
 
 def parse(objtype, text):
