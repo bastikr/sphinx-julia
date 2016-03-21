@@ -77,7 +77,7 @@ class Signature(JuliaModel):
 
     def __str__(self):
         l = self.positionalarguments + self.optionalarguments\
-            + [self.varargs] + [";"] + self.positionalarguments + [self.kwvarargs]
+            + [self.varargs] + [";"] + self.keywordarguments + [self.kwvarargs]
         return str([str(x) for x in l])
 
 
