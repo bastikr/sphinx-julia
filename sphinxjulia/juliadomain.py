@@ -162,6 +162,19 @@ class JuliaDomain(Domain):
                             match["docname"], match["uid"],
                             contnode, target)
 
+    def clear_doc(self, docname):
+        dictionaries = self.env.domaindata['jl']
+        for dicname in self.initial_data.keys():
+            dictionary = dictionaries[dicname]
+            for name, methods in dictionary.items():
+                items_to_delete = []
+                for i, m in enumerate(methods):
+                    if m["docname"] == docname:
+                        items_to_delete.insert(0, i)
+                for i in items_to_delete:
+                    methods.pop(i)
+
+
 
 def update_builder(app):
     app.env.juliaparser = modelparser.JuliaParser()
