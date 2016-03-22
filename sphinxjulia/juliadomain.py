@@ -71,23 +71,6 @@ class Function(JuliaDirective):
         Field('returntype', label=l_('Return type'), has_arg=False,
               names=('rtype',), bodyrolename='obj'),
     ]
-# <<<<<<< Updated upstream
-# =======
-
-#     def before_content(self):
-#         print()
-#         print("is called")
-#         env = self.state.document.settings.env
-#         #if env.config.julia_docstring_show_type:
-#         l = []
-#         for arg in self.function["arguments"]:
-#             if arg["type"]:
-#                 l.append(":type {name}: :class:`{type}`\n".format(**arg))
-#         for arg in self.function["kwarguments"]:
-#             if arg["type"]:
-#                 l.append(":kwtype {name}: :class:`{type}`\n".format(**arg))
-#         self.content.append(ViewList(l))
-# >>>>>>> Stashed changes
 
 
 class Abstract(JuliaDirective):

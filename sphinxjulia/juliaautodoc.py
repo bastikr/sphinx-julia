@@ -76,7 +76,6 @@ class AutoDirective(Directive):
             objtype = type(node).__name__.lower()
             node["ids"] = [node.uid(scope)]
             dictionary = self.env.domaindata['jl'][objtype]
-            node["ids"] = [node.uid(scope)]
             node.register(self.env.docname, scope, dictionary)
 
     def docstring(self, node, scope):
