@@ -69,7 +69,7 @@ class AutoDirective(Directive):
 
     def match(self, node, scope):
         if query.match(self.pattern, node):
-            self.matches.append(node)
+            self.matches.append(node.deepcopy())
 
     def register(self, node, scope):
         if isinstance(node, model.JuliaModelNode):
@@ -96,7 +96,8 @@ class AutoFileDirective(AutoDirective):
 
     def filter(self, modulenode):
         # Take all elements of file
-        self.matches.extend(modulenode.children)
+        for node in modulenode.children:
+            self.matches.append(node.deepcopy())
 
 
 class AutoModuleDirective(AutoDirective):
