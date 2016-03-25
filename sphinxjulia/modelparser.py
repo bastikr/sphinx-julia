@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 import subprocess
 from . import model
@@ -22,7 +24,7 @@ class JuliaParser:
 
     @property
     def julia(self):
-        if julia is None or isinstance(julia, Exception):
+        if self._julia is None or isinstance(self._julia, Exception):
             return None
         elif self._julia is None:
             try:
@@ -61,12 +63,12 @@ class JuliaParser:
         directory = os.path.dirname(os.path.realpath(__file__))
         scriptpath = os.path.join(directory, scriptdir, scripts["file"])
         p = subprocess.Popen(["julia", scriptpath, sourcepath],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                             universal_newlines=True)
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (buf, err) = p.communicate()
         if err:
             raise Exception(err)
-        model = eval(buf, eval_environment)
+        # buf is a bytestring in utf-8 encoding.
+        model = eval(buf.decode("utf-8"), eval_environment)
         self.cached_files[sourcepath] = model
         return model
 
@@ -159,7 +161,10 @@ def parse_signaturestring(text):
         x = text[i]
         if x in brackets:
             i_closing = find_closing_bracket(text, i, x)
-            assert i_closing != -1
+            if i_closing == -1:
+                raise ValueError("Bracket '{}' opens at index {}."
+                                 "Couldn't find the closing bracket:\n{}"
+                                 "".format(x, i, repr(text)))
             i = i_closing
         elif x == ";":
             argtype = "keywordarguments"

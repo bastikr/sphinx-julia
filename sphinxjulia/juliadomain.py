@@ -83,7 +83,7 @@ class Type(JuliaDirective):
 
 class JuliaXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        refnode['jl:scope'] = env.ref_context.get('jl:scope', []).copy()
+        refnode['jl:scope'] = list(env.ref_context.get('jl:scope', []))
         if not has_explicit_title:
             title = title.lstrip('.')    # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title

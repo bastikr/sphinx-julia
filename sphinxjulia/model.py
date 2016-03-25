@@ -1,7 +1,13 @@
+from __future__ import unicode_literals
+
 from docutils import nodes
 
 import hashlib
 
+try:
+    str = unicode
+except:
+    pass
 
 class JuliaModel:
     __fields__ = None
@@ -10,12 +16,15 @@ class JuliaModel:
         for fieldname, fieldtype in self.__fields__.items():
             if fieldname in kwargs:
                 arg = kwargs.pop(fieldname)
-                assert isinstance(arg, fieldtype)
+                if not isinstance(arg, fieldtype):
+                    raise ValueError("argtype: {}; fieldtype: {}".format(
+                                     type(arg), fieldtype))
                 setattr(self, fieldname, arg)
             else:
                 if isinstance(fieldtype, tuple):
-                    fieldtype = fieldtype[0]
-                setattr(self, fieldname, fieldtype())
+                    setattr(self, fieldname, None)
+                else:
+                    setattr(self, fieldname, fieldtype())
         assert len(kwargs) == 0
 
     @classmethod
@@ -50,14 +59,14 @@ class JuliaModelNode(JuliaModel, nodes.Element):
             dictionary[self.name] = entries
         entry = {
             "docname": docname,
-            "scope": scope.copy(),
+            "scope": list(scope),
             "uid": self.uid(scope)
         }
         entries.append(entry)
 
     def deepcopy(self):
         obj = JuliaModel.deepcopy(self)
-        obj["ids"] = self["ids"].copy()
+        obj["ids"] = list(self["ids"])
         obj.children = [c.deepcopy() for c in self.children]
         return obj
 
@@ -72,8 +81,8 @@ class Argument(JuliaModel):
 class Signature(JuliaModel):
     __fields__ = {"positionalarguments": list, "optionalarguments": list,
                   "keywordarguments": list,
-                  "varargs": (type(None), Argument),
-                  "kwvarargs": (type(None), Argument)}
+                  "varargs": (type(None), Argument,),
+                  "kwvarargs": (type(None), Argument,)}
 
     def __str__(self):
         l = self.positionalarguments + self.optionalarguments\
@@ -86,7 +95,9 @@ class Function(JuliaModelNode):
                   "signature": Signature, "docstring": str}
 
     def uid(self, scope):
-        x = bytes(str(self.templateparameters) + str(self.signature), "UTF-16")
+        # The bytecode will be different for python2 and python3 but that's
+        # probably not a problem.
+        x = (str(self.templateparameters) + str(self.signature)).encode("UTF-16")
         name = self.name + "-" + hashlib.md5(x).hexdigest()
         return ".".join(scope + [name])
 
@@ -98,7 +109,7 @@ class Function(JuliaModelNode):
             dictionary[self.name] = entries
         entry = {
             "docname": docname,
-            "scope": scope.copy(),
+            "scope": list(scope),
             "templateparameters": self.templateparameters,
             "signature": self.signature,
             "uid": self.uid(scope),
