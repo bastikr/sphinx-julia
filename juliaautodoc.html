@@ -106,7 +106,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -133,7 +133,7 @@
 <p>The autodoc extension is used to automatically extract documentation from source code. Contrary to its python equivalent where introspection is used to obtain the necessary information julia autodoc is file based. This means that the filename where the documented object is defined has to be stated explicitly.</p>
 <p>The usage of the autodoc extension will be explained using the following file as example</p>
 <blockquote class="epigraph">
-<div><div class="highlight-julia"><div class="highlight"><pre><span class="c"># examples/example.jl</span>
+<div><div class="highlight-julia"><div class="highlight"><pre><span></span><span class="c"># examples/example.jl</span>
 <span class="s">&quot;&quot;&quot;</span>
 <span class="s">Symbolic mathematical computation library.</span>
 <span class="s">&quot;&quot;&quot;</span>
@@ -166,31 +166,33 @@
 </div></blockquote>
 <p>The whole content of the file can automatically be imported into the documentation using the <code class="xref py py-obj docutils literal"><span class="pre">:jl:autofile</span></code> directive.</p>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:autofile</span><span class="p">::</span> examples/example.jl
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:autofile</span><span class="p">::</span> examples/example.jl
 </pre></div>
 </div>
 </div></blockquote>
 <blockquote class="epigraph">
-<div><dl class="class"><dt id=MathObject><em class="property">abstract </em><code class="descname">MathObject</code><a class="headerlink" href="#MathObject" title="Permalink to thisabstract">¶</a></dt><dd class="body">Symbolic mathematical computation library.</dd></dl><dl class="class"><dt id=Symbol><em class="property">type </em><code class="descname">Symbol<: MathObject</code><a class="headerlink" href="#Symbol" title="Permalink to thistype">¶</a></dt><dd class="body"></dd></dl><dl class="class"><dt id=Sum><em class="property">type </em><code class="descname">Sum<: MathObject</code><a class="headerlink" href="#Sum" title="Permalink to thistype">¶</a></dt><dd class="body"></dd></dl><dl class="function"><dt id="add-becf18098315b3672c3ab97f7d425703"><em class="property">function </em><code class="descname">add{T}</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#add-becf18098315b3672c3ab97f7d425703" title="Permalink to this function">¶</a></dt><dd><p>Add two symbols.</p>
+<div><dl class="class"><dt id=MathObject><em class="property">abstract </em><code class="descname">MathObject</code><a class="headerlink" href="#MathObject" title="Permalink to thisabstract">¶</a></dt><dd class="body">Symbolic mathematical computation library.</dd></dl><dl class="class"><dt id=Symbol><em class="property">type </em><code class="descname">Symbol<: MathObject</code><a class="headerlink" href="#Symbol" title="Permalink to thistype">¶</a></dt><dd class="body"></dd></dl><dl class="class"><dt id=Sum><em class="property">type </em><code class="descname">Sum<: MathObject</code><a class="headerlink" href="#Sum" title="Permalink to thistype">¶</a></dt><dd class="body"></dd></dl><dl class="function"><dt id="add-1768ad55701860638476ced286be7f80"><em class="property">function </em><code class="descname">add{T}</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#add-1768ad55701860638476ced286be7f80" title="Permalink to this function">¶</a></dt><dd><p>Add two symbols.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Param a:</th><td class="field-body">First argument.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Param b:</th><td class="field-body">Second argument.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>a</strong> &#8211; First argument.</li>
+<li><strong>b</strong> &#8211; Second argument.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl></div></blockquote>
 <p>To document only specific parts of the file one can use the directives <code class="xref py py-obj docutils literal"><span class="pre">jl:automodule</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">jl:autofunction</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">jl:autotype</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">jl:autoabstract</span></code>.</p>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:autofunction</span><span class="p">::</span> examples/example.jl add
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:autofunction</span><span class="p">::</span> examples/example.jl add
 </pre></div>
 </div>
 </div></blockquote>
 <blockquote class="epigraph">
-<div><dl class="function"><dt id="add-becf18098315b3672c3ab97f7d425703"><em class="property">function </em><code class="descname">add{T}</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#add-becf18098315b3672c3ab97f7d425703" title="Permalink to this function">¶</a></dt><dd><p>Add two symbols.</p>
+<div><dl class="function"><dt id="add-1768ad55701860638476ced286be7f80"><em class="property">function </em><code class="descname">add{T}</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#add-1768ad55701860638476ced286be7f80" title="Permalink to this function">¶</a></dt><dd><p>Add two symbols.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -205,14 +207,14 @@
 </table>
 </dd></dl></div></blockquote>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:autoabstract</span><span class="p">::</span> examples/example.jl MathObject
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:autoabstract</span><span class="p">::</span> examples/example.jl MathObject
 </pre></div>
 </div>
 </div></blockquote>
 <blockquote class="epigraph">
 <div><dl class="class"><dt id=MathObject><em class="property">abstract </em><code class="descname">MathObject</code><a class="headerlink" href="#MathObject" title="Permalink to thisabstract">¶</a></dt><dd class="body">Symbolic mathematical computation library.</dd></dl></div></blockquote>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:autotype</span><span class="p">::</span> examples/example.jl Sum
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:autotype</span><span class="p">::</span> examples/example.jl Sum
 </pre></div>
 </div>
 </div></blockquote>

@@ -11,9 +11,14 @@ Sphinx-Julia provides two separate extensions for sphinx:
     Automatic docstring extraction from Julia source files.
 
 
-
 Installation
 ============
+
+Requirements
+------------
+
+For the autodoc functionality to work properly a working pyjulia (https://github.com/JuliaLang/pyjulia) installation has to be available. There exists a fall-back solution but its much slower.
+
 
 
 PyPI - the Python Package Index
@@ -63,4 +68,3 @@ To use these extensions you have to specify this in the :file:`conf.py` file by 
     ]
 
 The directives provided by these extensions are explained in :ref:`julia-domain` and :ref:`julia-autodoc`. The documentation for the napoleon extension can be found at http://sphinx-doc.org/latest/ext/napoleon.html.
-

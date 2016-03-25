@@ -116,7 +116,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -148,7 +148,7 @@
 <h3>Types<a class="headerlink" href="#types" title="Permalink to this headline">¶</a></h3>
 <p>There are two directives <code class="xref py py-obj docutils literal"><span class="pre">type</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">abstract</span></code> representing composite types and abstract types respectively. Both of them are rather straight forward to use. E.g.</p>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:abstract</span><span class="p">::</span> Theory
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:abstract</span><span class="p">::</span> Theory
 
     The general principles or ideas that relate to a particular subject
 
@@ -166,7 +166,7 @@
 <h3>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h3>
 <p>Modules are created by using the <code class="xref py py-obj docutils literal"><span class="pre">module</span></code> directive and can be used to group other objects together. They can also be nested and provide a common namespace which is indicated by indentation and can be seen in the following example</p>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:module</span><span class="p">::</span> linalg
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:module</span><span class="p">::</span> linalg
 
 <span class="p">    ..</span> <span class="ow">jl:abstract</span><span class="p">::</span> Array
 
@@ -195,16 +195,16 @@
 <h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
 <p>Using the directive <code class="xref py py-obj docutils literal"><span class="pre">jl:function</span></code> allows us to define a function by giving the functions signature as argument. The simple example</p>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a)
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a)
 </pre></div>
 </div>
 </div></blockquote>
 <p>renders as</p>
 <blockquote class="epigraph">
-<div><dl class="function"><dt id="f-23052c2a4a3c418a2aa425ea871a6a2a"><em class="property">function </em><code class="descname">f</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#f-23052c2a4a3c418a2aa425ea871a6a2a" title="Permalink to this function">¶</a></dt><dd></dd></dl></div></blockquote>
+<div><dl class="function"><dt id="f-b4142f03057c41ac2de581ec39cb884f"><em class="property">function </em><code class="descname">f</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#f-b4142f03057c41ac2de581ec39cb884f" title="Permalink to this function">¶</a></dt><dd></dd></dl></div></blockquote>
 <p>Additional text in the body of the directive can be used for documentation of the function</p>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a::Int, b=1)
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> f(a::Int, b=1)
 
     Detailed explanation of everything.
 </pre></div>
@@ -212,10 +212,10 @@
 </div></blockquote>
 <p>and looks like</p>
 <blockquote class="epigraph">
-<div><dl class="function"><dt id="f-d1aaa8a4fedd6c759e719ff90451d745"><em class="property">function </em><code class="descname">f</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="Permalink to this function">¶</a></dt><dd>Detailed explanation of everything.</dd></dl></div></blockquote>
+<div><dl class="function"><dt id="f-d4fe440dbf081fd89a8f0d9bbe56266d"><em class="property">function </em><code class="descname">f</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#f-d4fe440dbf081fd89a8f0d9bbe56266d" title="Permalink to this function">¶</a></dt><dd>Detailed explanation of everything.</dd></dl></div></blockquote>
 <p>Also more complicated signatures are possible and also most of the roles defined for the python domain can be used allowing for a nice description of the parameters. E.g.</p>
 <blockquote class="epigraph">
-<div><div class="highlight-rst"><div class="highlight"><pre><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> myfunc{T}(a::T, b=1; state=&quot;Foo&quot;, flag::Boolean, kwargs...)
+<div><div class="highlight-rst"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">jl:function</span><span class="p">::</span> myfunc{T}(a::T, b=1; state=&quot;Foo&quot;, flag::Boolean, kwargs...)
 
     Solve all the things.
 
@@ -229,7 +229,7 @@
 </div></blockquote>
 <p>gives the following output</p>
 <blockquote class="epigraph">
-<div><dl class="function"><dt id="myfunc-9664abe57ba710674d12129804146af7"><em class="property">function </em><code class="descname">myfunc{T}</code><span class="sig-paren">(</span><em>a</em>; <em>b</em>, <em>flag</em><span class="sig-paren">)</span><a class="headerlink" href="#myfunc-9664abe57ba710674d12129804146af7" title="Permalink to this function">¶</a></dt><dd><p>Solve all the things.</p>
+<div><dl class="function"><dt id="myfunc-0dcb47bcb056e5df40fcd4a525f8ba24"><em class="property">function </em><code class="descname">myfunc{T}</code><span class="sig-paren">(</span><em>a</em>; <em>b</em>, <em>flag</em><span class="sig-paren">)</span><a class="headerlink" href="#myfunc-0dcb47bcb056e5df40fcd4a525f8ba24" title="Permalink to this function">¶</a></dt><dd><p>Solve all the things.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -256,8 +256,8 @@
 <span id="julia-domain-roles"></span><h2>Roles<a class="headerlink" href="#roles" title="Permalink to this headline">¶</a></h2>
 <p>Every directive introduced above can be referenced via the roles <code class="xref py py-obj docutils literal"><span class="pre">type</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">abstract</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">mod</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">func</span></code>.</p>
 <p>Using <code class="docutils literal"><span class="pre">:jl:type:`Matrix`</span></code> (<a class="reference internal" href="#linalg.Matrix" title="Matrix"><code class="xref jl jl-type docutils literal"><span class="pre">Matrix</span></code></a>) and <code class="docutils literal"><span class="pre">:jl:abstract:`Array`</span></code> (<a class="reference internal" href="#linalg.Array" title="Array"><code class="xref jl jl-abstract docutils literal"><span class="pre">Array</span></code></a>) creates references to these types .</p>
-<p>Targets can be referenced fully qualified <code class="docutils literal"><span class="pre">:jl:mod:`linalg.sparse`</span></code> or shortened as <code class="docutils literal"><span class="pre">:jl:mod:`sparse`</span></code>.</p>
-<p>Functions are in the simplest case identified just by their name, e.g. <code class="docutils literal"><span class="pre">:jl:func:`myfunc`</span></code> (<a class="reference internal" href="#myfunc-9664abe57ba710674d12129804146af7" title="myfunc"><code class="xref jl jl-func docutils literal"><span class="pre">myfunc</span></code></a>). In order to distinguish between methods of the same name one can additionally use pattern matching like <code class="docutils literal"><span class="pre">:jl:func:`f(a)`</span></code> (<a class="reference internal" href="#f-23052c2a4a3c418a2aa425ea871a6a2a" title="f(a)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a)</span></code></a>), <code class="docutils literal"><span class="pre">:jl:func:`f(a,b)`</span></code> (<a class="reference internal" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="f(a,b)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a,b)</span></code></a>), <code class="docutils literal"><span class="pre">:jl:func:`f(a::Int,)`</span></code> (<a class="reference internal" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="f(a::Int,)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a::Int,)</span></code></a>) or <code class="docutils literal"><span class="pre">:jl:func:`f(,=1)`</span></code> (<a class="reference internal" href="#f-d1aaa8a4fedd6c759e719ff90451d745" title="f(,=1)"><code class="xref jl jl-func docutils literal"><span class="pre">f(,=1)</span></code></a>).</p>
+<p>Targets can be referenced fully qualified <code class="docutils literal"><span class="pre">:jl:mod:`linalg.sparse`</span></code> (<a class="reference internal" href="#linalg.sparse" title="linalg.sparse"><code class="xref jl jl-mod docutils literal"><span class="pre">linalg.sparse</span></code></a>) or shortened as <code class="docutils literal"><span class="pre">:jl:mod:`sparse`</span></code> (<a class="reference internal" href="#linalg.sparse" title="sparse"><code class="xref jl jl-mod docutils literal"><span class="pre">sparse</span></code></a>).</p>
+<p>Functions are in the simplest case identified just by their name, e.g. <code class="docutils literal"><span class="pre">:jl:func:`myfunc`</span></code> (<a class="reference internal" href="#myfunc-0dcb47bcb056e5df40fcd4a525f8ba24" title="myfunc"><code class="xref jl jl-func docutils literal"><span class="pre">myfunc</span></code></a>). In order to distinguish between methods of the same name one can additionally use pattern matching like <code class="docutils literal"><span class="pre">:jl:func:`f(a)`</span></code> (<a class="reference internal" href="#f-b4142f03057c41ac2de581ec39cb884f" title="f(a)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a)</span></code></a>), <code class="docutils literal"><span class="pre">:jl:func:`f(a,b)`</span></code> (<a class="reference internal" href="#f-d4fe440dbf081fd89a8f0d9bbe56266d" title="f(a,b)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a,b)</span></code></a>), <code class="docutils literal"><span class="pre">:jl:func:`f(a::Int,)`</span></code> (<a class="reference internal" href="#f-d4fe440dbf081fd89a8f0d9bbe56266d" title="f(a::Int,)"><code class="xref jl jl-func docutils literal"><span class="pre">f(a::Int,)</span></code></a>) or <code class="docutils literal"><span class="pre">:jl:func:`f(,=1)`</span></code> (<a class="reference internal" href="#f-d4fe440dbf081fd89a8f0d9bbe56266d" title="f(,=1)"><code class="xref jl jl-func docutils literal"><span class="pre">f(,=1)</span></code></a>).</p>
 </div>
 </div>
 

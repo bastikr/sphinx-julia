@@ -84,6 +84,7 @@
                 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="">Sphinx-Julia</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pypi-the-python-package-index">PyPI - the Python Package Index</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#source">Source</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
@@ -115,7 +116,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -148,6 +149,10 @@
 </dl>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p>For the autodoc functionality to work properly a working pyjulia (<a class="reference external" href="https://github.com/JuliaLang/pyjulia">https://github.com/JuliaLang/pyjulia</a>) installation has to be available. There exists a fall-back solution but its much slower.</p>
+</div>
 <div class="section" id="pypi-the-python-package-index">
 <h3>PyPI - the Python Package Index<a class="headerlink" href="#pypi-the-python-package-index" title="Permalink to this headline">¶</a></h3>
 <p>You can download the latest package from the official Python Package Index</p>
@@ -156,28 +161,28 @@
 <div class="section" id="source">
 <h3>Source<a class="headerlink" href="#source" title="Permalink to this headline">¶</a></h3>
 <p>Development happens on github (<a class="reference external" href="https://github.com/bastikr/sphinx-julia.git">https://github.com/bastikr/sphinx-julia.git</a>) and the source code can be obtained usinge the command</p>
-<div class="highlight-bash"><div class="highlight"><pre>&gt;&gt; git clone https://github.com/bastikr/sphinx-julia.git
+<div class="highlight-bash"><div class="highlight"><pre><span></span>&gt;&gt; git clone https://github.com/bastikr/sphinx-julia.git
 </pre></div>
 </div>
 <p>Make sure sphinx can find the extensions by either adding this repository to the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></code> e.g.</p>
-<div class="highlight-bash"><div class="highlight"><pre>&gt;&gt; <span class="nb">export </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:~/sphinx-julia
+<div class="highlight-bash"><div class="highlight"><pre><span></span>&gt;&gt; <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:~/sphinx-julia
 </pre></div>
 </div>
 <p>or alternatively adding the path directly in the sphinx config file <code class="file docutils literal"><span class="pre">conf.py</span></code></p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># conf.py</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># conf.py</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s">&#39;~/sphinx-julia&#39;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">&#39;~/sphinx-julia&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <p>To use these extensions you have to specify this in the <code class="file docutils literal"><span class="pre">conf.py</span></code> file by adding <code class="xref py py-obj docutils literal"><span class="pre">sphinxjulia.juliadomain</span></code> and <code class="xref py py-obj docutils literal"><span class="pre">sphinxjulia.juliaautodoc</span></code> to the extensions list. If you have docstrings in numpy or google style you can also add <code class="xref py py-obj docutils literal"><span class="pre">sphinx.ext.napoleon</span></code> which will give much nicer output.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s">&#39;sphinxjulia.juliadomain&#39;</span><span class="p">,</span>
-    <span class="s">&#39;sphinxjulia.juliaautodoc&#39;</span><span class="p">,</span>
-    <span class="s">&#39;sphinx.ext.napoleon&#39;</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;sphinxjulia.juliadomain&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sphinxjulia.juliaautodoc&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sphinx.ext.napoleon&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 </div>
