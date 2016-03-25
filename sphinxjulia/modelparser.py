@@ -178,27 +178,49 @@ def parse_signaturestring(text):
 
 
 def parse_functionstring(text):
+    def f(s, sub):
+        i = s.find(sub)
+        if i==-1:
+            i = len(s)
+        return i
+
     d = {}
-    i_sig0 = text.find("(")
-    i_sig1 = text.rfind(")")
-    if i_sig0 == -1:
-        d["name"] = text
-        return model.Function(**d)
-    assert i_sig0 < i_sig1
-    i_templ0 = text.find("{")
-    i_templ1 = text.find("}", i_templ0)
-    if i_templ0 != -1 and i_templ0 < i_sig0:
-        assert i_templ1 < i_sig0
-        name = text[:i_templ0].strip()
-        templateparameters = text[i_templ0+1:i_templ1].split(",")
+
+    i_braces = f(text, "{")
+    i_parentheses = f(text, "(")
+    i_returntype = f(text, "->")
+
+    # Test for template parameters
+    if i_braces < i_parentheses and i_braces < i_returntype:
+        i_close = find_closing_bracket(text, i_braces, "{")
+        assert i_close != -1
+        templateparameters = text[i_braces+1:i_close].split(",")
         d["templateparameters"] = [t.strip() for t in templateparameters]
-    else:
-        name = text[:i_sig0].strip()
-    if "." in name:
-        modulename, name = name.rsplit(".", 1)
+        text = text[:i_braces] + text[i_close+1:]
+        i_parentheses = f(text, "(")
+        i_returntype = f(text, "->")
+
+    # Test for calling signature
+    if i_parentheses < i_returntype:
+        i_close = find_closing_bracket(text, i_parentheses, "(")
+        assert i_close != -1
+        d["signature"] = parse_signaturestring(text[i_parentheses+1:i_close])
+        text = text[:i_parentheses] + text[i_close+1:]
+        i_returntype = f(text, "->")
+
+    # Test for return type annotation
+    if i_returntype < len(text):
+        d["returntype"] = text[i_returntype + 2:]
+        text = text[:i_returntype]
+
+    # Text only contains the function name at this point
+    if "." in text:
+        modulename, name = text.rsplit(".", 1)
         d["modulename"] = modulename.strip()
+    else:
+        name = text
     d["name"] = name.strip()
-    d["signature"] = parse_signaturestring(text[i_sig0+1:i_sig1])
+
     return model.Function(**d)
 
 

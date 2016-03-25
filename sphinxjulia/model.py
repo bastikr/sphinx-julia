@@ -92,7 +92,7 @@ class Signature(JuliaModel):
 
 class Function(JuliaModelNode):
     __fields__ = {"name": str, "modulename": str, "templateparameters": list,
-                  "signature": Signature, "docstring": str}
+                  "signature": Signature, "returntype": str, "docstring": str}
 
     def uid(self, scope):
         # The bytecode will be different for python2 and python3 but that's
