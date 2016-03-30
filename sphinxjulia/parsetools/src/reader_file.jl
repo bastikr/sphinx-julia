@@ -3,6 +3,7 @@ using ..model
 
 function escaped_string(x)
     s = string(x)
+    s = replace(s, "\\", "\\\\")
     s = replace(s, "'", "\\'")
     s = replace(s, "\"", "\\\"")
     s = replace(s, "\n", "\\n")
