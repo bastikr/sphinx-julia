@@ -24,7 +24,7 @@ class JuliaParser:
 
     @property
     def julia(self):
-        if self._julia is None or isinstance(self._julia, Exception):
+        if isinstance(self._julia, Exception):
             return None
         elif self._julia is None:
             try:
@@ -68,7 +68,8 @@ class JuliaParser:
         if err:
             raise Exception(err)
         # buf is a bytestring in utf-8 encoding.
-        model = eval(buf.decode("utf-8"), eval_environment)
+        text = buf.decode("utf-8")
+        model = eval(text, eval_environment)
         self.cached_files[sourcepath] = model
         return model
 
