@@ -151,6 +151,9 @@ class JuliaDomain(Domain):
                      typ, target, node, contnode):
         matches = self.find_obj(typ, node, target)
         if not matches:
+            env.warn_node(
+                'No target found for cross-reference ' + str(target),
+                node)
             return None
         elif len(matches) > 1:
             env.warn_node(
