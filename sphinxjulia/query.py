@@ -4,19 +4,16 @@ from . import model, modelparser
 
 
 def resolvescope(basescope, targetstring):
-    assert targetstring.startswith(".")
-    innerscope, name = targetstring.rsplit(".", 1)
     N = 0
-    for x in innerscope:
+    for x in targetstring:
         if x != ".":
             break
         N += 1
-    assert N-1 <= len(basescope)
-    basescope = basescope[:len(basescope)-N]
-    if "." in innerscope[N:]:
-        scope = basescope + innerscope[N:].split(".")
-    else:
-        scope = basescope
+    name = targetstring[N:]
+    scope = basescope[:len(basescope)-N+1]
+    if "." in name:
+        innerscope, name = name.rsplit(".", 1)
+        scope += innerscope.split(".")
     return scope, name
 
 
@@ -103,7 +100,11 @@ def find_function_by_string(basescope, targetstring, dictionary):
     if funcpattern.modulename:
         targetstring = ".".join([funcpattern.modulename, funcpattern.name])
     else:
-        targetstring = funcpattern.name
+        # This is necessary since parsing .func and func gives the same.
+        if targetstring.startswith("."):
+            targetstring = "." + funcpattern.name
+        else:
+            targetstring = funcpattern.name
     # Absolute references
     if not targetstring.startswith("."):
         targetstring = "." + targetstring
@@ -131,6 +132,7 @@ def find_object_by_string(objtype, basescope, targetstring, dictionaries):
     dictionary = dictionaries[objtype]
     if objtype == "function":
         return find_function_by_string(basescope, targetstring, dictionary)
+
     # Absolute references
     if not targetstring.startswith("."):
         targetstring = "." + targetstring
