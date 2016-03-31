@@ -4,13 +4,20 @@ from . import model, modelparser
 
 
 def resolvescope(basescope, targetstring):
-    if "." not in targetstring:
-        return [], targetstring
+    assert targetstring.startswith(".")
     innerscope, name = targetstring.rsplit(".", 1)
-    innerscope = innerscope.split(".")
-    if innerscope[0] == "":
-        return basescope + innerscope[1:], name
-    return innerscope, name
+    N = 0
+    for x in innerscope:
+        if x != ".":
+            break
+        N += 1
+    assert N-1 <= len(basescope)
+    basescope = basescope[:len(basescope)-N]
+    if "." in innerscope[N:]:
+        scope = basescope + innerscope[N:].split(".")
+    else:
+        scope = basescope
+    return scope, name
 
 
 def match_argument(pattern, argument):
@@ -76,19 +83,13 @@ def match(pattern, obj):
     return f(pattern, obj)
 
 
-def find_function_by_string(basescope, targetstring, dictionary):
-    funcpattern = modelparser.parse_functionstring(targetstring)
-    if funcpattern.modulename:
-        name = ".".join([funcpattern.modulename, funcpattern.name])
-    else:
-        name = funcpattern.name
-    refscope, name = resolvescope(basescope, name)
+def find_function_in_scope(scope, name, funcpattern, dictionary):
     if name not in dictionary:
         return []
     tpars = set(funcpattern.templateparameters)
     matches = []
     for func in dictionary[name]:
-        if len(refscope)!=0 and refscope != func["scope"]:
+        if scope != func["scope"]:
             continue
         if tpars and tpars != set(func.templateparameters):
             continue
@@ -97,18 +98,49 @@ def find_function_by_string(basescope, targetstring, dictionary):
     return matches
 
 
-def find_object_by_string(objtype, basescope, targetstring, dictionaries):
-    dictionary = dictionaries[objtype]
-    if objtype == "function":
-        return find_function_by_string(basescope, targetstring, dictionary)
-    refscope, name = resolvescope(basescope, targetstring)
+def find_function_by_string(basescope, targetstring, dictionary):
+    funcpattern = modelparser.parse_functionstring(targetstring)
+    if funcpattern.modulename:
+        targetstring = ".".join([funcpattern.modulename, funcpattern.name])
+    else:
+        targetstring = funcpattern.name
+    # Absolute references
+    if not targetstring.startswith("."):
+        targetstring = "." + targetstring
+        scope, name = resolvescope([], targetstring)
+        matches = find_function_in_scope(scope, name, funcpattern, dictionary)
+        if matches:
+            return matches
+    # Relative references
+    scope, name = resolvescope(basescope, targetstring)
+    matches = find_function_in_scope(scope, name, funcpattern, dictionary)
+    return matches
+
+
+def find_object_in_scope(scope, name, dictionary):
     if name not in dictionary:
         return []
     matches = []
     for obj in dictionary[name]:
-        if len(refscope)==0 or refscope == obj["scope"]:
+        if scope == obj["scope"]:
             matches.append(obj)
     return matches
+
+
+def find_object_by_string(objtype, basescope, targetstring, dictionaries):
+    dictionary = dictionaries[objtype]
+    if objtype == "function":
+        return find_function_by_string(basescope, targetstring, dictionary)
+    # Absolute references
+    if not targetstring.startswith("."):
+        targetstring = "." + targetstring
+        scope, name = resolvescope([], targetstring)
+        matches = find_object_in_scope(scope, name, dictionary)
+        if matches:
+            return matches
+    # Relative references
+    scope, name = resolvescope(basescope, targetstring)
+    return find_object_in_scope(scope, name, dictionary)
 
 
 class NodeWalker:
