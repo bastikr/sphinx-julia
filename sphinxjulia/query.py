@@ -86,7 +86,7 @@ def find_function_in_scope(scope, name, funcpattern, dictionary):
     tpars = set(funcpattern.templateparameters)
     matches = []
     for func in dictionary[name]:
-        if scope != func["scope"]:
+        if scope is not None and scope != func["scope"]:
             continue
         if tpars and tpars != set(func.templateparameters):
             continue
@@ -105,16 +105,21 @@ def find_function_by_string(basescope, targetstring, dictionary):
             targetstring = "." + funcpattern.name
         else:
             targetstring = funcpattern.name
-    # Absolute references
+    specified_scope, name = resolvescope([], targetstring)
+    # For absolute references look at global namespace first
     if not targetstring.startswith("."):
-        targetstring = "." + targetstring
-        scope, name = resolvescope([], targetstring)
-        matches = find_function_in_scope(scope, name, funcpattern, dictionary)
+        matches = find_function_in_scope(specified_scope, name,
+                                         funcpattern, dictionary)
         if matches:
             return matches
     # Relative references
     scope, name = resolvescope(basescope, targetstring)
     matches = find_function_in_scope(scope, name, funcpattern, dictionary)
+    if matches:
+        return matches
+    # If it's a single name without scope specification look everywhere
+    if not targetstring.startswith(".") and len(specified_scope) == 0:
+        matches = find_function_in_scope(None, name, funcpattern, dictionary)
     return matches
 
 
@@ -123,7 +128,7 @@ def find_object_in_scope(scope, name, dictionary):
         return []
     matches = []
     for obj in dictionary[name]:
-        if scope == obj["scope"]:
+        if scope is None or scope == obj["scope"]:
             matches.append(obj)
     return matches
 
@@ -132,17 +137,21 @@ def find_object_by_string(objtype, basescope, targetstring, dictionaries):
     dictionary = dictionaries[objtype]
     if objtype == "function":
         return find_function_by_string(basescope, targetstring, dictionary)
-
-    # Absolute references
+    specified_scope, name = resolvescope([], targetstring)
+    # For absolute references look at global namespace first
     if not targetstring.startswith("."):
-        targetstring = "." + targetstring
-        scope, name = resolvescope([], targetstring)
-        matches = find_object_in_scope(scope, name, dictionary)
+        matches = find_object_in_scope(specified_scope, name, dictionary)
         if matches:
             return matches
     # Relative references
     scope, name = resolvescope(basescope, targetstring)
-    return find_object_in_scope(scope, name, dictionary)
+    matches = find_object_in_scope(scope, name, dictionary)
+    if matches:
+        return matches
+    # If it's a single name without scope specification look everywhere
+    if not targetstring.startswith(".") and len(specified_scope) == 0:
+        matches = find_object_in_scope(None, name, dictionary)
+    return matches
 
 
 class NodeWalker:
