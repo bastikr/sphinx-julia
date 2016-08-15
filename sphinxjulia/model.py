@@ -67,7 +67,8 @@ class JuliaModelNode(JuliaModel, nodes.Element):
     def deepcopy(self):
         obj = JuliaModel.deepcopy(self)
         obj["ids"] = list(self["ids"])
-        obj.children = [c.deepcopy() for c in self.children]
+        obj.children = [c for c in self.children]
+        #obj.parent = self.parent
         return obj
 
 
