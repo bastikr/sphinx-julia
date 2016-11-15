@@ -38,7 +38,7 @@ function isdocstring(x)
     if typeof(x) != Expr
         return false
     end
-    return x.head == :macrocall && x.args[1] == Symbol("@doc")
+    return x.head == :macrocall && x.args[1].name == Symbol("@doc")
 end
 
 function isfield(x)
@@ -254,10 +254,10 @@ function read_type(x::Expr, docstring::AbstractString)
             end
         elseif false
             # Not supported yet
-        elseif arg.head == :let || arg.head == :macrocall
+        elseif arg.head == :let || arg.head == :macrocall || arg.head == :line
             # Won't support
         else
-            println(arg)
+            dump(arg)
             error()
         end
     end
@@ -296,7 +296,7 @@ function read_module(x::Expr, docstring::AbstractString)
         elseif arg.head == :macrocall || arg.head == :call ||
                arg.head == :for || arg.head == :let || arg.head == :if ||
                arg.head == :try || arg.head == Symbol("=") || arg.head == :ccall ||
-               arg.head == Symbol("&&") || arg.head == :quote
+               arg.head == Symbol("&&") || arg.head == :quote || arg.head == :line
             # Won't support
         else
             println(arg)
@@ -310,7 +310,7 @@ end
 
 function read_file(sourcepath)
     f = open(sourcepath)
-    buf = readall(f)
+    buf = readstring(f)
     close(f)
     buf = "module __temp__\n $(buf)\nend"
     ast = parse(buf)
