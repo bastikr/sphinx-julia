@@ -15,14 +15,14 @@ def format_argument(translator, argument):
 
 def format_templateparameters(translator, args):
     if args:
-        return "\{%s\}" % ",".join([translator.encode(arg) for arg in args])
+        return "{%s}" % ",".join([arg for arg in args])
     else:
         return ""
 
 
 def format_parenttype(translator, arg):
     if arg:
-        return translator.encode(" <: " + arg)
+        return " <: " + arg
     else:
         return ""
 
@@ -31,7 +31,9 @@ def visit_generic(translator, node, descriptor, name):
     I = translator.body.append
     I('\n\\begin{fulllineitems}\n')
     I(r'\phantomsection')
-    I('\\pysigline{\\strong{%s} %s}\n' % (descriptor, name,))
+    I('\\pysigline{\\strong{%s} %s}\\ \n' % (
+        translator.encode(descriptor),
+        translator.encode(name),))
 
 
 def depart_generic(translator, node):
