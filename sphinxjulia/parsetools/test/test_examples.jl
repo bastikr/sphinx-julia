@@ -7,7 +7,7 @@ include("../src/parsetools.jl")
 # close(f)
 
 # m = parsetools.reader.read_file("../src/reader_file.jl")
-m = parsetools.reader.read_file("example2.jl")
+m = parsetools.reader.read_file("operators.jl")
 println(m)
 # m = parsetools.reader.read_file("/usr/share/julia/base/abstractarray.jl")
 
