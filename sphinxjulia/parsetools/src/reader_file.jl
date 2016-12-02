@@ -38,7 +38,8 @@ function isdocstring(x)
     if typeof(x) != Expr
         return false
     end
-    return x.head == :macrocall && x.args[1].name == Symbol("@doc")
+    return x.head == :macrocall &&
+        x.args[1] == GlobalRef(Module(Core), Symbol("@doc"))
 end
 
 function isfield(x)
