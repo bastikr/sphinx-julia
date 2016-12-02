@@ -14,8 +14,12 @@ scriptdir = "parsetools/scripts"
 scripts = {
     "file": "sourcefile2pythonmodel.jl",
 }
-
 eval_environment = {x: getattr(model, x) for x in dir(model) if not x.startswith("_")}
+
+class ParseError(Exception):
+    def __init__(self, source, errormessage):
+        self.source = source
+        self.errormessage = errormessage
 
 
 class JuliaParser:
@@ -66,7 +70,11 @@ class JuliaParser:
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (buf, err) = p.communicate()
         if err:
-            raise Exception(err)
+            print("Parsing file {} failed with error message:".format(sourcepath))
+            print("-"*80)
+            print(err.decode("utf-8"))
+            print("-"*80)
+            raise ParseError(sourcepath, err)
         # buf is a bytestring in utf-8 encoding.
         text = buf.decode("utf-8")
         model = eval(text, eval_environment)
@@ -81,7 +89,15 @@ class JuliaParser:
                              universal_newlines=True)
         (buf, err) = p.communicate()
         if err:
-            raise Exception(err)
+            print("Parsing {} from string:".format(objtype))
+            print("-"*80)
+            print(text)
+            print("-"*80)
+            print("failed with error message:")
+            print("-"*80)
+            print(err.decode("utf-8"))
+            print("-"*80)
+            raise ParseError(text, err)
         model = eval(buf, eval_environment)
         return model
 
