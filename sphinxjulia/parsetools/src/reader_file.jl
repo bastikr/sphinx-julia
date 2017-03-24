@@ -153,15 +153,19 @@ function read_function(x::Expr, docstring::AbstractString)
                 || (x.head == Symbol("=")
                     && typeof(x.args[1]) == Expr
                     && x.args[1].head == :call))
-    funcexpr = x.args[1]
-    if typeof(funcexpr) == Symbol # function f end
+    if typeof(x.args[1]) == Symbol # function f end
         modulename = ""
-        name = string(funcexpr)
+        name = string(x.args[1])
         templateparameters = AbstractString[]
         signature = read_signature([])
         return model.Function(name, modulename, templateparameters, signature, docstring)
     end
-
+    if x.args[1].head == :(::) # function ...f(...)::Type
+        funcexpr = x.args[1].args[1]
+        returntype = x.args[1].args[2] # Ignore returntype for now # TODO!
+    else
+        funcexpr = x.args[1]
+    end
     definition = funcexpr.args[1]
     if typeof(definition) == Symbol # function f(...)
         name = string(definition)
