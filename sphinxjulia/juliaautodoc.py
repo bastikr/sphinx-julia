@@ -61,6 +61,9 @@ class AutoDirective(Directive):
             query.walk_tree(node, self.register, scope)
             # Add docstrings
             query.walk_tree(node, self.docstring, scope)
+
+        self.state.document.settings.record_dependencies.add(self.sourcepath)
+
         return self.matches
 
     def filter(self, modulenode):
