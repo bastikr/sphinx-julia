@@ -10,7 +10,12 @@ def format_signature(translator, signature):
 
 
 def format_argument(translator, argument):
-    return r"\emph{%s}" % translator.encode(argument.name)
+    out = r"\emph{%s}" % translator.encode(argument.name)
+    if argument.argumenttype:
+        out += "::" + translator.encode(argument.argumenttype)
+    if argument.value:
+        out += r" = \texttt{%s}" % translator.encode(argument.value)
+    return out
 
 
 def format_templateparameters(translator, args):
