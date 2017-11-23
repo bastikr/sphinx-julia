@@ -185,6 +185,8 @@ def parse_signaturestring(text):
             i = i_closing
         elif x == ";":
             argtype = "keywordarguments"
+            _appendargument(d, text[i_start:i].strip(), argtype)
+            i_start = i+1
         elif x == ",":
             _appendargument(d, text[i_start:i].strip(), argtype)
             i_start = i+1
