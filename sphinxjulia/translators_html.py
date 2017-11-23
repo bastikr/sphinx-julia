@@ -10,7 +10,12 @@ def format_signature(signature):
 
 
 def format_argument(argument):
-    return "<em>" + argument.name + "</em>"
+    out = "<em>" + argument.name + "</em>"
+    if argument.argumenttype:
+        out += "::" + argument.argumenttype
+    if argument.value:
+        out += " = <tt>" + argument.value + "</tt>"
+    return out
 
 
 def format_templateparameters(args):
