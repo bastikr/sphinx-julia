@@ -53,6 +53,11 @@ or alternatively adding the path directly in the sphinx config file :file:`conf.
     import os
     sys.path.insert(0, os.path.abspath('~/sphinx-julia'))
 
+or installing the repository in development mode
+
+.. code-blcok:: bash
+
+    >> python setup.py develop
 
 Usage
 -----
