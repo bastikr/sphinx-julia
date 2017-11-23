@@ -31,7 +31,7 @@ def visit_generic(translator, node, descriptor, name):
     I = translator.body.append
     I('\n\\begin{fulllineitems}\n')
     I(r'\phantomsection')
-    I('\\pysigline{\\strong{%s} %s}\\ \n' % (
+    I('\\pysigline{\\textbf{%s} %s}\\ \n' % (
         translator.encode(descriptor),
         translator.encode(name),))
 
@@ -58,13 +58,13 @@ def visit_abstract(translator, node):
 
 def visit_function(translator, node):
     tpars = format_templateparameters(translator, node.templateparameters)
-    name = (r'\bfcode{%s}' % translator.encode(node.name)) + tpars
+    name = (r'\textbf{\texttt{%s}}' % translator.encode(node.name)) + tpars
     signature = format_signature(translator, node.signature)
     I = translator.body.append
     I('\n\\begin{fulllineitems}\n')
     I(r'\phantomsection')
     I(r'\label{index:%s}' % node["ids"][0])
-    I('\\pysiglinewithargsret{\\strong{function} %s}{%s}{}\n' % (name, signature))
+    I('\\pysiglinewithargsret{\\textbf{function} %s}{%s}{}\n' % (name, signature))
 
     # I('<dl class="function">')
     # I('<dt id="%s">' % node["ids"][0])
