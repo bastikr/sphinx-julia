@@ -6,6 +6,7 @@ from docutils.statemachine import ViewList
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docfields import DocFieldTransformer
 from sphinx.locale import l_
+from sphinx.errors import SphinxError
 
 from . import model, modelparser, query
 
@@ -129,6 +130,14 @@ def setup(app):
     app.add_directive('jl:autotype', AutoType)
     app.add_directive('jl:autoabstract', AutoAbstract)
 
-    # Events
-    app.add_event('autodoc-process-docstring')
-    app.add_event('autodoc-skip-member')
+    # Events (NB these may already have been added by the regular Sphinx
+    # autodoc extension)
+    try:
+        app.add_event('autodoc-process-docstring')
+    except SphinxError:
+        pass
+    
+    try:
+        app.add_event('autodoc-skip-member')
+    except SphinxError:
+        pass
