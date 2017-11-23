@@ -69,7 +69,7 @@ class JuliaParser:
         p = subprocess.Popen(["julia", scriptpath, sourcepath],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (buf, err) = p.communicate()
-        if err:
+        if p.returncode != 0:
             print("Parsing file {} failed with error message:".format(sourcepath))
             print("-"*80)
             print(err.decode("utf-8"))
