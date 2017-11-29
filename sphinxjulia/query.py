@@ -41,7 +41,7 @@ def match_signature(pattern, signature):
     pkwd = {arg.name: arg for arg in pattern.keywordarguments}
     fkwd = {arg.name: arg for arg in signature.keywordarguments}
     for name in pkwd:
-        if name not in fkwd or not match_argument(pkwd["name"]):
+        if name not in fkwd or not match_argument(fkwd[name], pkwd[name]):
             return False
     return True
 
