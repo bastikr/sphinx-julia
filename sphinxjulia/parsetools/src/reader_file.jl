@@ -93,6 +93,10 @@ function read_argument(arg)
                 end
             end
             value = arg.args[2]
+            # Show string literals in quotes
+            if typeof(value) <: AbstractString
+                value = repr(value)
+            end
         elseif arg.head == Symbol("::")
             if length(arg.args) == 1
                 name = ""
