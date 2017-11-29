@@ -7,9 +7,9 @@ function Base.string(m::model.JuliaModel)
     for name in fieldnames(m)
         p = getfield(m, name)
         if typeof(p) <: AbstractString
-            p = "'$p'"
+            p = repr(p)
         elseif typeof(p) <: Array{AbstractString, 1}
-            p = "["*join(["'$x'" for x=p], ", ")*"]"
+            p = "["*join([repr(x) for x=p], ", ")*"]"
         elseif typeof(p) <: Array
             p = "["*join([string(x) for x=p], ", ")*"]"
         elseif p == nothing
