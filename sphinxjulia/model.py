@@ -126,6 +126,10 @@ class Type(JuliaModelNode):
     __fields__ = {"name": str, "templateparameters": list, "parenttype": str,
                   "fields": list, "constructors": list, "docstring": str}
 
+    def __init__(self, **kwargs):
+        JuliaModelNode.__init__(self, **kwargs)
+        self.extend(self.constructors)
+
 
 CompositeType = Type
 
