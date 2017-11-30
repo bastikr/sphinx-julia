@@ -164,9 +164,13 @@ function read_function(x::Expr, docstring::AbstractString)
         signature = read_signature([])
         return model.Function(name, modulename, templateparameters, signature, docstring)
     end
+    templateparameters = AbstractString[]
     if x.args[1].head == :(::) # function ...f(...)::Type
         funcexpr = x.args[1].args[1]
         returntype = x.args[1].args[2] # Ignore returntype for now # TODO!
+    elseif x.args[1].head == :where # function ...f(...) where {T}
+        funcexpr = x.args[1].args[1]
+        templateparameters = [string(x) for x=x.args[1].args[2:end]]
     else
         funcexpr = x.args[1]
     end
@@ -174,7 +178,6 @@ function read_function(x::Expr, docstring::AbstractString)
     if typeof(definition) == Symbol # function f(...)
         name = string(definition)
         modulename = ""
-        templateparameters = AbstractString[]
     else
         @assert typeof(definition) == Expr
         if definition.head == :curly # function Base.f{T}(...)
@@ -182,7 +185,6 @@ function read_function(x::Expr, docstring::AbstractString)
             templateparameters = [string(x) for x=definition.args[2:end]]
         else # function Base.f(...)
             fullname = definition
-            templateparameters = AbstractString[]
         end
         if typeof(fullname) == Symbol # function f(...)
             modulename = ""
