@@ -3,9 +3,13 @@
 def format_signature(signature):
     arguments = signature.positionalarguments + signature.optionalarguments
     args = [format_argument(arg) for arg in arguments]
-    if not signature.keywordarguments:
+    if signature.varargs is not None:
+        args.append(format_argument(signature.varargs) + "...")
+    if not (signature.keywordarguments or signature.kwvarargs):
         return ", ".join(args)
     kwargs = [format_argument(arg) for arg in signature.keywordarguments]
+    if signature.kwvarargs is not None:
+        kwargs.append(format_argument(signature.kwvarargs) + "...")
     return ", ".join(args) + "; " + ", ".join(kwargs)
 
 
