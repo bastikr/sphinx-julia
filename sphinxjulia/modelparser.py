@@ -209,7 +209,7 @@ def parse_functionstring(text):
     i_parentheses = f(text, "(")
     i_returntype = f(text, "->")
 
-    # Test for template parameters
+    # Test for template parameters-at-start
     if i_braces < i_parentheses and i_braces < i_returntype:
         i_close = find_closing_bracket(text, i_braces, "{")
         assert i_close != -1
@@ -231,6 +231,17 @@ def parse_functionstring(text):
     if i_returntype < len(text):
         d["returntype"] = text[i_returntype + 2:]
         text = text[:i_returntype]
+    
+    # Test for template parameters-at-end
+    i_where = f(text, " where")
+    if i_where < len(text):
+        assert "templateparameters" not in d
+        i_braces = f(text, "{")
+        i_close = find_closing_bracket(text, i_braces, "{")
+        assert i_braces < i_close and i_close < len(text)
+        templateparameters = text[i_braces+1:i_close].split(",")
+        d["templateparameters"] = [t.strip() for t in templateparameters]
+        text = text[:i_where]
 
     # Text only contains the function name at this point
     if "." in text:

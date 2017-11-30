@@ -76,11 +76,13 @@ def visit_function(translator, node):
     I('<dt id="%s">' % node["ids"][0])
     I('<em class="property">function </em>')
     I('<code class="descname">')
-    I(node.name + tpars)
+    I(node.name)
     I('</code>')
     I('<span class="sig-paren">(</span>')
     I(signature)
     I('<span class="sig-paren">)</span>')
+    if tpars:
+        I(" where " + tpars)
     translator.add_permalink_ref(node, "Permalink to this function")
     I("</dt><dd>")
 
