@@ -243,6 +243,15 @@ function read_type(x::Expr, docstring::AbstractString)
     @assert x.args[3].head == :block
     for arg in x.args[3].args
         innerdocstring, arg = extractdocstring(arg)
+        # XXX: Julia's AST parser (as of v0.6) does not correctly parse
+        # docstrings associated with type constructors. In practice, Julia's
+        # 'help' tool will show type-level documentation when trying to lookup
+        # a constructor. The work-around below does essentially the same thing
+        # in the documentation by copying the type's docstring into the
+        # constructor.
+        if isempty(innerdocstring)
+            innerdocstring = docstring
+        end
         if typeof(arg) != Expr
             continue
         elseif isfield(arg)
