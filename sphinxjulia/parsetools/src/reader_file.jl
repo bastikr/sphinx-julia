@@ -1,15 +1,6 @@
 using ..model
 
 
-function escaped_string(x)
-    s = string(x)
-    s = replace(s, "\\", "\\\\")
-    s = replace(s, "'", "\\'")
-    s = replace(s, "\"", "\\\"")
-    s = replace(s, "\n", "\\n")
-    return s
-end
-
 function ismodule(x)
     if typeof(x) != Expr
         return false
@@ -64,7 +55,7 @@ end
 
 function extractdocstring(x)
     if isdocstring(x)
-        d = escaped_string(x.args[2])
+        d = string(x.args[2])
         return d, x.args[3]
     else
         return "", x
