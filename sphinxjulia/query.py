@@ -32,17 +32,26 @@ def match_signature(pattern, signature):
     if len(parguments) == len(pattern.keywordarguments) == 0 and\
        pattern.varargs is None and pattern.kwvarargs is None:
         return True
+    
     farguments = signature.positionalarguments + signature.optionalarguments
     if len(parguments) != len(farguments):
         return False
     for i in range(len(parguments)):
         if not match_argument(parguments[i], farguments[i]):
             return False
+    if pattern.varargs and signature.varargs and \
+            not match_argument(pattern.varargs, signature.varargs):
+        return False
+    
     pkwd = {arg.name: arg for arg in pattern.keywordarguments}
     fkwd = {arg.name: arg for arg in signature.keywordarguments}
     for name in pkwd:
         if name not in fkwd or not match_argument(fkwd[name], pkwd[name]):
             return False
+    if pattern.kwvarargs and signature.kwvarargs and \
+            not match_argument(pattern.kwvarargs, signature.kwvarargs):
+        return False
+    
     return True
 
 
