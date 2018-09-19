@@ -1,20 +1,24 @@
-abstract JuliaModel
+@static if VERSION < v"0.7.0"
+  const Nothing = Void
+end
 
-type Argument <: JuliaModel
+abstract type JuliaModel end
+
+mutable struct Argument <: JuliaModel
     name::AbstractString
     argumenttype::AbstractString
     value::AbstractString
 end
 
-type Signature<: JuliaModel
+mutable struct Signature<: JuliaModel
     positionalarguments::Vector{Argument}
     optionalarguments::Vector{Argument}
     keywordarguments::Vector{Argument}
-    varargs::Union{Argument, Void}
-    kwvarargs::Union{Argument, Void}
+    varargs::Union{Argument, Nothing}
+    kwvarargs::Union{Argument, Nothing}
 end
 
-type Function<: JuliaModel
+mutable struct Function<: JuliaModel
     name::AbstractString
     modulename::AbstractString
     templateparameters::Vector{AbstractString}
@@ -22,20 +26,20 @@ type Function<: JuliaModel
     docstring::AbstractString
 end
 
-type Field<: JuliaModel
+mutable struct Field<: JuliaModel
     name::AbstractString
     fieldtype::AbstractString
     value::AbstractString
 end
 
-type Abstract<: JuliaModel
+mutable struct Abstract<: JuliaModel
     name::AbstractString
     templateparameters::Vector{AbstractString}
     parenttype::AbstractString
     docstring::AbstractString
 end
 
-type CompositeType<: JuliaModel
+mutable struct CompositeType<: JuliaModel
     name::AbstractString
     templateparameters::Vector{AbstractString}
     parenttype::AbstractString
@@ -44,7 +48,7 @@ type CompositeType<: JuliaModel
     docstring::AbstractString
 end
 
-type Module<: JuliaModel
+mutable struct Module<: JuliaModel
     name::AbstractString
     body::Vector{Union{Module,Abstract,CompositeType,Function}}
     docstring::AbstractString

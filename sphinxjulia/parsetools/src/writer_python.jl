@@ -4,7 +4,7 @@ using ..model
 function Base.string(m::model.JuliaModel)
     typename = last(split(string(typeof(m)), "."))
     d = AbstractString["$(typename)("]
-    for name in fieldnames(m)
+    for name in fieldnames(typeof(m))
         p = getfield(m, name)
         if typeof(p) <: AbstractString
             p = repr(p)

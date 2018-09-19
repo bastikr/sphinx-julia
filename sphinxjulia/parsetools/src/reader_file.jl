@@ -1,6 +1,5 @@
 using ..model
 
-
 function ismodule(x)
     if typeof(x) != Expr
         return false
@@ -30,7 +29,7 @@ function isdocstring(x)
         return false
     end
     return x.head == :macrocall &&
-        x.args[1] == GlobalRef(Module(Core), Symbol("@doc"))
+        x.args[1] == GlobalRef(Core, Symbol("@doc"))
 end
 
 function isfield(x)
@@ -55,8 +54,13 @@ end
 
 function extractdocstring(x)
     if isdocstring(x)
-        d = string(x.args[2])
-        return d, x.args[3]
+        @static if VERSION < v"0.7.0"
+            d = string(x.args[2])
+            return d, x.args[3]
+        else
+            d = string(x.args[3])
+            return d, x.args[4]
+        end
     else
         return "", x
     end
@@ -237,7 +241,7 @@ function read_abstract(x::Expr, docstring::AbstractString)
 end
 
 function read_type(x::Expr, docstring::AbstractString)
-    @assert x.head == :type
+    @assert x.head == :type || x.head == :struct
     name, templateparameters, supertype = read_typedeclaration(x.args[2])
     fields = model.Field[]
     constructors = model.Function[]
@@ -289,7 +293,7 @@ function read_module(x::Expr, docstring::AbstractString)
         end
         if arg.head == :abstract
             push!(body, read_abstract(arg, innerdocstring))
-        elseif arg.head == :type
+        elseif arg.head == :type || arg.head == :struct
             push!(body, read_type(arg, innerdocstring))
         elseif isfunction(arg)
             func = read_function(arg, innerdocstring)
@@ -318,13 +322,16 @@ function read_module(x::Expr, docstring::AbstractString)
     model.Module(name, body, docstring)
 end
 
-
 function read_file(sourcepath)
     f = open(sourcepath)
-    buf = readstring(f)
+    @static if VERSION < v"0.7.0"
+        buf = readstring(f)
+    else
+        buf = read(f, String)
+    end
     close(f)
     buf = "module __temp__\n $(buf)\nend"
-    ast = parse(buf)
+    ast = Meta.parse(buf)
     m = read_module(ast, "")
     # if length(m.body) == 1 && typeof(m.body[1]) == model.Module
     #     return m.body[1]
