@@ -55,7 +55,7 @@ or alternatively adding the path directly in the sphinx config file :file:`conf.
 
 or installing the repository in development mode
 
-.. code-blcok:: bash
+.. code-block:: bash
 
     >> python setup.py develop
 
