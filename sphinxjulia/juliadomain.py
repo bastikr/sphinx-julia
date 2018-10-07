@@ -8,6 +8,7 @@ from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docfields import DocFieldTransformer
+from sphinx.util import logging
 from . import model, modelparser, translators_html, translators_latex, query
 
 
@@ -151,15 +152,14 @@ class JuliaDomain(Domain):
                      typ, target, node, contnode):
         matches = self.find_obj(typ, node, target)
         if not matches:
-            env.warn_node(
-                'No target found for cross-reference ' + str(target),
-                node)
+            logger = logging.getLogger(__name__)
+            logger.warn('No target found for cross-reference ' + str(target))
             return None
         elif len(matches) > 1:
-            env.warn_node(
+            logger = logging.getLogger(__name__)
+            logger.warn(
                 'more than one target found for cross-reference '
-                '%r: %s' % (target, ', '.join(match["uid"] for match in matches)),
-                node)
+                '%r: %s' % (target, ', '.join(match["uid"] for match in matches)))
         match = matches[0]
         return make_refnode(builder, fromdocname,
                             match["docname"], match["uid"],
