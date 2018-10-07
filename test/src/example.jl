@@ -11,7 +11,7 @@ module B
 """
 Type t.
 """
-abstract t
+abstract type t end
 
 end
 

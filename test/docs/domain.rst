@@ -16,7 +16,7 @@ Juliadomain
 
             asdsdfdsf
 
-        .. jl:function:: testfunc{S, T}(a::Int, b=1; c="z")
+        .. jl:function:: testfunc(a::Int, b::T=1; c="z") where {T}
 
     .. jl:type:: subtype <: DomainTest_B.abstracttype
 

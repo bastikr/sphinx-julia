@@ -29,10 +29,4 @@ Automodule
 Autofunction
 ------------
 
-.. jl:autofunction:: DormandPrince45.jl interpolate
-
-
-Autofile DormandPrince
-----------------------
-
-.. jl:autofile:: ../src/DormandPrince45.jl
+.. jl:autofunction:: example2.jl f

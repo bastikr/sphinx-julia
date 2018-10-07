@@ -2,13 +2,13 @@
 Symbolic mathematical computation library.
 """
 
-abstract MathObject
+abstract type MathObject end
 
-type Symbol <: MathObject
+struct Symbol <: MathObject
     name::AbstractString
 end
 
-type Sum <: MathObject
+struct Sum <: MathObject
     args::Vector{Symbol}
 end
 
@@ -22,6 +22,6 @@ a
 b
     Second argument.
 """
-function add{T}(a::T, b::T)
+function add(a::T, b::T) where {T}
     return Sum(Symbol[a, b])
 end
