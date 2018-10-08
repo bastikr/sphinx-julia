@@ -130,14 +130,10 @@ def setup(app):
     app.add_directive('jl:autotype', AutoType)
     app.add_directive('jl:autoabstract', AutoAbstract)
 
-    # Events (NB these may already have been added by the regular Sphinx
+    # Events (These may already have been added by the regular Sphinx
     # autodoc extension)
-    try:
+    if 'autodoc-process-docstring' not in app.events.events:
         app.add_event('autodoc-process-docstring')
-    except SphinxError:
-        pass
-    
-    try:
+
+    if 'autodoc-skip-member' not in app.events.events:
         app.add_event('autodoc-skip-member')
-    except SphinxError:
-        pass
