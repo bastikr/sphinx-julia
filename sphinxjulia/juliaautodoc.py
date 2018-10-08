@@ -8,7 +8,7 @@ from sphinx.util.docfields import DocFieldTransformer
 from sphinx.locale import l_
 from sphinx.errors import SphinxError
 
-from . import model, modelparser, query
+from . import model, parsing_juliacode, parsing_sphinxstring, query
 
 
 class AutoDirective(Directive):
@@ -68,7 +68,7 @@ class AutoDirective(Directive):
         return self.matches
 
     def filter(self, modulenode):
-        self.pattern = modelparser.parse(self.objtype, self.arguments[1])
+        self.pattern = parsing_sphinxstring.parse(self.objtype, self.arguments[1])
         query.walk_tree(modulenode, self.match, scope=[])
 
     def match(self, node, scope):
@@ -119,6 +119,17 @@ class AutoAbstract(AutoDirective):
     pass
 
 
+def update_builder(app):
+    app.env.juliaparser = parsing_juliacode.JuliaParser()
+    # translator = app.builder.translator_class
+    # translator.first_kwordparam = True
+    # _visit_desc_parameterlist = translator.visit_desc_parameterlist
+    # def visit_desc_parameterlist(self, node):
+    #     self.first_kwordparam = True
+    #     _visit_desc_parameterlist(self, node)
+    # translator.visit_desc_parameterlist = visit_desc_parameterlist
+
+
 def setup(app):
     # Config values
     app.add_config_value('juliaautodoc_basedir', '..', 'html')
@@ -137,3 +148,5 @@ def setup(app):
 
     if 'autodoc-skip-member' not in app.events.events:
         app.add_event('autodoc-skip-member')
+
+    app.connect('builder-inited', update_builder)

@@ -1,6 +1,6 @@
 import docutils.utils
 
-from . import model, modelparser
+from . import model, parsing_sphinxstring
 
 
 def resolvescope(basescope, targetstring):
@@ -105,7 +105,7 @@ def find_function_in_scope(scope, name, funcpattern, dictionary):
 
 
 def find_function_by_string(basescope, targetstring, dictionary):
-    funcpattern = modelparser.parse_functionstring(targetstring)
+    funcpattern = parsing_sphinxstring.parse_functionstring(targetstring)
     if funcpattern.modulename:
         targetstring = ".".join([funcpattern.modulename, funcpattern.name])
     else:

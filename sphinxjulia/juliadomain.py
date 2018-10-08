@@ -9,7 +9,7 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docfields import DocFieldTransformer
 from sphinx.util import logging
-from . import model, modelparser, translators_html, translators_latex, query
+from . import model, parsing_sphinxstring, translators_html, translators_latex, query
 
 
 class JuliaDirective(Directive):
@@ -37,7 +37,7 @@ class JuliaDirective(Directive):
         return [modelnode]
 
     def parse_arguments(self):
-        return modelparser.parse(self.objtype, self.arguments[0])
+        return parsing_sphinxstring.parse(self.objtype, self.arguments[0])
 
     def parse_content(self, modelnode):
         self.state.nested_parse(self.content, self.content_offset, modelnode)
@@ -178,18 +178,6 @@ class JuliaDomain(Domain):
                     methods.pop(i)
 
 
-
-def update_builder(app):
-    app.env.juliaparser = modelparser.JuliaParser()
-    # translator = app.builder.translator_class
-    # translator.first_kwordparam = True
-    # _visit_desc_parameterlist = translator.visit_desc_parameterlist
-    # def visit_desc_parameterlist(self, node):
-    #     self.first_kwordparam = True
-    #     _visit_desc_parameterlist(self, node)
-    # translator.visit_desc_parameterlist = visit_desc_parameterlist
-
-
 def setup(app):
     # app.add_config_value('julia_signature_show_qualifier', True, 'html')
     # app.add_config_value('julia_signature_show_type', True, 'html')
@@ -204,5 +192,4 @@ def setup(app):
                      html=htmltranslator,
                      latex=latextranslator,
                      )
-    app.connect('builder-inited', update_builder)
     app.add_domain(JuliaDomain)
