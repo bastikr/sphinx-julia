@@ -67,9 +67,9 @@ To use these extensions you have to specify this in the :file:`conf.py` file by 
 .. code-block:: python
 
     extensions = [
+        'sphinx.ext.napoleon',
         'sphinxjulia.juliadomain',
         'sphinxjulia.juliaautodoc',
-        'sphinx.ext.napoleon',
     ]
 
 The directives provided by these extensions are explained in :ref:`julia-domain` and :ref:`julia-autodoc`. The documentation for the napoleon extension can be found at http://sphinx-doc.org/latest/ext/napoleon.html.

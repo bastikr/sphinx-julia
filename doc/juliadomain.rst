@@ -135,12 +135,12 @@ Also more complicated signatures are possible and also most of the roles defined
 
     .. code-block:: rst
 
-        .. jl:function:: myfunc{T}(a::T, b=1; state="Foo", flag::Boolean, kwargs...)
+        .. jl:function:: myfunc(a::Int64, b::T=1; state="Foo", flag::Boolean, kwargs...) where {T}
 
             Solve all the things.
 
             :param a: Very important parameter
-            :type a: T
+            :type a: Int64
             :param b: Not so important parameter
             :kwparam state: It's a trap.
             :kwparam flag: Do. Or do not. There is no try.
@@ -149,12 +149,12 @@ gives the following output
 
 .. epigraph::
 
-    .. jl:function:: myfunc{T}(a::T, b=1; state="Foo", flag=True, kwargs...)
+    .. jl:function:: myfunc(a::Int64, b::T=1; state="Foo", flag=True, kwargs...) where {T}
 
         Solve all the things.
 
         :param a: Very important parameter
-        :type a: T
+        :type a: Int64
         :param b: Not so important parameter
         :kwparam state: It's a trap.
         :kwparam flag: Do. Or do not. There is no try.
