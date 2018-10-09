@@ -8,15 +8,6 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 
 
-def splitscope(text):
-    if "." in text:
-        scope, name = text.rsplit(".", 1)
-        scope = scope.split(".")
-    else:
-        scope, name = [], text
-    return scope, name
-
-
 def parse_modulestring(text):
     return model.Module(name=text)
 
