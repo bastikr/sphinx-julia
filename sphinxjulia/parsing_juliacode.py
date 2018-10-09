@@ -8,12 +8,16 @@ from __future__ import unicode_literals
 
 import os
 import subprocess
+
+from sphinx.util import logging
+logger = logging.getLogger(__name__)
+
 from . import model
 
 try:
     import julia
 except ImportError:
-    print("PyJulia not found - using slower alternative.")
+    logger.warn("PyJulia not found - using slower alternative.")
     julia = None
 
 scriptdir = "parsetools/scripts"
@@ -40,7 +44,7 @@ class JuliaParser:
             try:
                 self._julia = julia.Julia()
             except Exception as e:
-                print("Creating julia.Julia raised an error - falling back to slower alternative.")
+                logger.warn("Creating julia.Julia raised an error - falling back to slower alternative.")
                 self._julia = e
                 return None
         return self._julia
