@@ -4,6 +4,9 @@ Convert a string written for Sphinx to its corresponding JuliaModel.
 
 from . import model
 
+from sphinx.util import logging
+logger = logging.getLogger(__name__)
+
 
 def splitscope(text):
     if "." in text:
@@ -97,59 +100,48 @@ def parse_signaturestring(text):
 
 
 def parse_functionstring(text):
-    def f(s, sub):
-        i = s.find(sub)
-        if i==-1:
-            i = len(s)
-        return i
-
     d = {}
 
-    i_braces = f(text, "{")
-    i_parentheses = f(text, "(")
-    i_returntype = f(text, "->")
+    i_parentheses_open = text.find("(")
+    if i_parentheses_open == -1:
+        qualifiedname = text.strip()
+    else:
+        qualifiedname = text[:i_parentheses_open]
 
-    # Test for template parameters-at-start
-    if i_braces < i_parentheses and i_braces < i_returntype:
-        i_close = find_closing_bracket(text, i_braces, "{")
-        assert i_close != -1
-        templateparameters = text[i_braces+1:i_close].split(",")
-        d["templateparameters"] = [t.strip() for t in templateparameters]
-        text = text[:i_braces] + text[i_close+1:]
-        i_parentheses = f(text, "(")
-        i_returntype = f(text, "->")
+    if "." in qualifiedname:
+        modulename, name = qualifiedname.rsplit(".", 1)
+        d["modulename"] = modulename.strip()
+    else:
+        name = qualifiedname
+    d["name"] = name.strip()
 
-    # Test for calling signature
-    if i_parentheses < i_returntype:
-        i_close = find_closing_bracket(text, i_parentheses, "(")
-        assert i_close != -1
-        d["signature"] = parse_signaturestring(text[i_parentheses+1:i_close])
-        text = text[:i_parentheses] + text[i_close+1:]
-        i_returntype = f(text, "->")
+    if i_parentheses_open == -1:
+        return model.Function(**d)
 
-    # Test for return type annotation
-    if i_returntype < len(text):
-        d["returntype"] = text[i_returntype + 2:]
-        text = text[:i_returntype]
-    
-    # Test for template parameters-at-end
-    i_where = f(text, " where")
-    if i_where < len(text):
-        assert "templateparameters" not in d
-        i_braces = f(text, "{")
-        i_close = find_closing_bracket(text, i_braces, "{")
-        assert i_braces < i_close and i_close < len(text)
-        templateparameters = text[i_braces+1:i_close].split(",")
+    i_parentheses_close = find_closing_bracket(text, i_parentheses_open, "(")
+    if i_parentheses_close == -1:
+        logger.error("Failed parsing function string (Unbalanced parentheses):\n" + text)
+        raise ValueError("Failed parsing function string (Unbalanced parentheses)")
+
+    d["signature"] = parse_signaturestring(text[i_parentheses_open+1:i_parentheses_close])
+
+    text = text[i_parentheses_close:]
+    i_where = text.find(" where ")
+    if i_where != -1:
+        i_brace_open = text.find("{", i_where)
+        if i_brace_open == -1:
+            logger.error("Failed parsing function string (Missing { after where clause):\n" + text)
+            raise ValueError("Failed parsing function string (Missing { after where clause)")
+        i_brace_close = find_closing_bracket(text, i_brace_open, "{")
+        if i_brace_close == -1:
+            logger.error("Failed parsing function string (Missing } after where clause):\n" + text)
+            raise ValueError("Failed parsing function string (Missing } after where clause)")
+        templateparameters = text[i_brace_open+1:i_brace_close].split(",")
         d["templateparameters"] = [t.strip() for t in templateparameters]
         text = text[:i_where]
 
-    # Text only contains the function name at this point
-    if "." in text:
-        modulename, name = text.rsplit(".", 1)
-        d["modulename"] = modulename.strip()
-    else:
-        name = text
-    d["name"] = name.strip()
+    if text.startswith("::"):
+        d["returntype"] = text[2:].strip()
 
     return model.Function(**d)
 
