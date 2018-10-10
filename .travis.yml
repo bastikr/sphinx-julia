@@ -19,8 +19,10 @@ install:
   - export PYTHONPATH=$PYTHONPATH:`pwd`
 
 script:
+  - julia --version
   - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
-      travis-sphinx build --source doc/source --nowarn;
+      cd doc;
+      travis-sphinx build --source source --nowarn;
     fi
 
 after_success:
