@@ -21,7 +21,7 @@ install:
 
 script:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
-      travis-sphinx build --source doc/source;
+      travis-sphinx build --source doc/source --nowarn;
     fi
 
 after_success:
