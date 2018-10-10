@@ -15,9 +15,8 @@ before_install:
   - sudo apt-get install julia
 
 install:
-  - pip install travis-sphinx
+  - pip install travis-sphinx sphinx_rtd_theme
   - export PYTHONPATH=$PYTHONPATH:`pwd`
-
 
 script:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
