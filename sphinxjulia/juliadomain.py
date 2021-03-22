@@ -2,7 +2,10 @@ from docutils import nodes
 from docutils.parsers.rst import Directive
 
 from sphinx import addnodes
-from sphinx.locale import l_
+try:
+    from sphinx.locale import l_
+except ImportError:
+    from sphinx.locale import _ as l_
 from sphinx.domains import Domain, ObjType
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
