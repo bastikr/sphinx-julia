@@ -5,7 +5,10 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docfields import DocFieldTransformer
-from sphinx.locale import l_
+try:
+    from sphinx.locale import l_
+except ImportError:
+    from sphinx.locale import _ as l_
 from sphinx.errors import SphinxError
 
 from . import model, parsing_juliacode, parsing_sphinxstring, query
