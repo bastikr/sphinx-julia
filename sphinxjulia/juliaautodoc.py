@@ -1,7 +1,7 @@
 import os
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
+from sphinx.directives import ObjectDescription
 from docutils.statemachine import ViewList
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docfields import DocFieldTransformer
@@ -14,7 +14,7 @@ from sphinx.errors import SphinxError
 from . import model, parsing_juliacode, parsing_sphinxstring, query
 
 
-class AutoDirective(Directive):
+class AutoDirective(ObjectDescription):
     has_content = False
     required_arguments = 2
     optional_arguments = 0
@@ -44,7 +44,6 @@ class AutoDirective(Directive):
         else:
             self.domain, self.objtype = '', self.name
         self.objtype = self.objtype[len("auto"):]
-        self.env = self.state.document.settings.env
         sourcedir = self.env.app.config.juliaautodoc_basedir
         self.sourcepath = os.path.join(sourcedir, self.arguments[0])
         self.matches = []
