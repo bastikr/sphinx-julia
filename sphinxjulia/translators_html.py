@@ -15,6 +15,8 @@ def format_signature(signature):
 
 def format_argument(argument):
     out = "<em>" + argument.name + "</em>"
+    if argument.macrocall:
+        out = "<small>" + argument.macrocall + "</small> " + out
     if argument.argumenttype:
         out += "::" + argument.argumenttype
     if argument.value:

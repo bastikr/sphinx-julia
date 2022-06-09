@@ -69,6 +69,7 @@ end
 function read_argument(arg)
     argumenttype = ""
     value = ""
+    macrocall = ""
     if typeof(arg) == Symbol
         name = arg
     elseif typeof(arg) == Expr
@@ -101,13 +102,25 @@ function read_argument(arg)
                 name = arg.args[1]
                 argumenttype = arg.args[2]
             end
+        elseif arg.head == :macrocall
+            @assert length(arg.args) == 3
+            macrocall = arg.args[1]
+            arg = arg.args[3]
+            if typeof(arg) == Symbol
+                name = arg
+            elseif length(arg.args) == 2
+                name = arg.args[1]
+                value = arg.args[2]
+            else
+                error()
+            end
         else
             error()
         end
     else
         error()
     end
-    model.Argument(string(name), string(argumenttype), string(value))
+    model.Argument(string(name), string(argumenttype), string(value), string(macrocall))
 end
 
 function read_signature(x::Vector)

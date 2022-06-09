@@ -73,7 +73,7 @@ class JuliaModelNode(JuliaModel, nodes.Element):
 
 
 class Argument(JuliaModel):
-    __fields__ = {"name":str, "argumenttype": str, "value": str}
+    __fields__ = {"name":str, "argumenttype": str, "value": str, "macrocall": str}
 
     def __str__(self):
         return self.name + "::" + self.argumenttype + "=" + self.value
