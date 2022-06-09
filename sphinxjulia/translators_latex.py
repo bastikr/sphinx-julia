@@ -15,6 +15,8 @@ def format_signature(translator, signature):
 
 def format_argument(translator, argument):
     out = r"\emph{%s}" % translator.encode(argument.name)
+    if argument.macrocall:
+        out = r"{\scriptsize %s} " % translator.encode(argument.macrocall) + out
     if argument.argumenttype:
         out += "::" + translator.encode(argument.argumenttype)
     if argument.value:

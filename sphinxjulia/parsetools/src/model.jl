@@ -8,6 +8,7 @@ mutable struct Argument <: JuliaModel
     name::AbstractString
     argumenttype::AbstractString
     value::AbstractString
+    macrocall::AbstractString
 end
 
 mutable struct Signature<: JuliaModel
