@@ -340,7 +340,12 @@ function read_file(sourcepath)
     @static if VERSION < v"0.7.0"
         buf = readstring(f)
     else
-        buf = read(f, String)
+        try 
+            buf = read_and_include_files(sourcepath)
+        catch e
+            println("Error reading file: $sourcepath \n $e \n Continuing read without includes.")
+            buf = read(f, String)
+        end
     end
     close(f)
     buf = "module __temp__\n $(buf)\nend"
@@ -352,5 +357,39 @@ function read_file(sourcepath)
         m.name = ""
         return m
     # end
+end
+
+function read_and_include_files(file_path::String, base_path::String="")
+    # Determine the base path for relative includes
+    if base_path == ""
+        base_path = dirname(file_path)
+    end
+    
+    # Initialize an empty string to accumulate file contents
+    total_content = ""
+    
+    # Open and read the file
+    open(file_path, "r") do file
+        for line in eachline(file)
+            # Check if the line contains an include statement
+            trimmed_line = strip(line)
+            if startswith(trimmed_line, "include(") && endswith(trimmed_line, ")")
+                # Extract the included file path
+                include_path = strip(trimmed_line[9:end-1], ['"', '\''])
+                
+                # Build the full path for the included file
+                full_include_path = ispath(include_path) ? include_path : joinpath(base_path, include_path)
+                
+                # Recursively read and include files
+                included_content = read_and_include_files(full_include_path, base_path)
+                total_content *= included_content
+            else
+                # Append the current line to the total content
+                total_content *= line * "\n"
+            end
+        end
+    end
+    
+    return total_content
 end
 
